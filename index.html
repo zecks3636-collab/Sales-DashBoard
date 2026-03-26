@@ -443,8 +443,9 @@ const appState = {
         plan: [245.50, 81.63, 56.81, 16.76, 142.16, 16.92, 6.25, 11.20, 44.11],
         prev: [164.31, 51.28, 47.09, 20.95, 106.57, 16.14, 5.58, 6.06, 29.95]
     },
-    // 전체 월별 트렌드 차트 데이터 (신규 첨부 PDF 기반 수치 소수점 2자리 업데이트)
+    // 전체 월별 트렌드 차트 데이터 (신규 첨부 PDF 기반 수치 소수점 2자리 업데이트 및 새 통합차트 추가)
     trends: [
+        { name: '건기식부문 Total', isTotal: true, actual: [null,null,null,null,null,null,null,null,null,null,null,null], plan: [null,null,null,null,null,null,null,null,null,null,null,null], prev: [null,null,null,null,null,null,null,null,null,null,null,null] },
         { name: 'NBT 연결', actual: [327.73, 286.40, 314.86, 352.26, null, null, null, null, null, null, null, null], plan: [285.00, 255.00, 275.00, 310.00, 305.00, 295.00, 290.00, 270.00, 315.00, 315.00, 310.00, 265.00], prev: [255.70, 232.69, 233.38, 232.59, 273.22, 250.71, 219.72, 206.74, 230.24, 236.63, 270.36, 232.56] },
         { name: 'NBT 한국', actual: [279.26, 203.74, 245.88, 283.57, null, null, null, null, null, null, null, null], plan: [232.50, 201.50, 208.50, 245.50, 230.50, 232.50, 219.50, 208.50, 247.50, 243.50, 232.50, 197.50], prev: [192.17, 166.49, 157.42, 164.31, 184.36, 171.15, 144.76, 152.84, 166.01, 173.20, 209.68, 187.03] },
         { name: 'NBT 중국', actual: [115.07, 85.55, 95.48, 110.44, null, null, null, null, null, null, null, null], plan: [85.80, 71.45, 76.07, 81.63, 81.37, 77.13, 80.76, 80.47, 81.37, 88.88, 71.91, 78.78], prev: [102.43, 70.39, 71.39, 51.28, 89.56, 68.18, 51.66, 49.68, 44.70, 56.90, 57.35, 76.00] },
@@ -457,7 +458,8 @@ const appState = {
         { name: '펫법인', actual: [8.99, 6.26, 10.10, 11.50, null, null, null, null, null, null, null, null], plan: [10.00, 9.20, 10.08, 11.20, 11.20, 12.32, 10.40, 9.60, 13.44, 13.44, 15.68, 13.44], prev: [5.86, 6.33, 6.32, 6.06, 6.97, 6.78, 6.76, 7.02, 7.65, 8.98, 8.98, 7.07] },
         { name: '파마', actual: [30.43, 20.47, 32.23, 32.03, null, null, null, null, null, null, null, null], plan: [29.93, 35.68, 33.27, 44.11, 37.94, 36.69, 44.06, 47.79, 48.43, 49.62, 45.22, 47.26], prev: [29.40, 25.30, 29.95, 29.95, 31.42, 27.62, 23.70, 23.81, 33.01, 30.46, 27.23, 37.84] },
         { name: '파마 제천', actual: [22.84, 12.66, 21.14, 14.64, null, null, null, null, null, null, null, null], plan: [16.07, 21.12, 17.67, 29.92, 21.90, 21.22, 28.68, 31.80, 35.23, 36.90, 29.37, 31.45], prev: [21.30, 13.73, 20.25, 18.63, 20.77, 17.24, 15.38, 13.23, 21.80, 24.36, 15.56, 23.04] },
-        { name: '파마 오송', actual: [7.60, 7.81, 11.09, 17.39, null, null, null, null, null, null, null, null], plan: [13.85, 14.56, 15.60, 14.19, 16.04, 15.47, 15.38, 15.99, 13.20, 12.72, 15.85, 15.82], prev: [8.10, 11.57, 9.70, 11.32, 10.66, 10.38, 8.32, 10.58, 11.21, 6.10, 11.68, 14.80] }
+        { name: '파마 오송', actual: [7.60, 7.81, 11.09, 17.39, null, null, null, null, null, null, null, null], plan: [13.85, 14.56, 15.60, 14.19, 16.04, 15.47, 15.38, 15.99, 13.20, 12.72, 15.85, 15.82], prev: [8.10, 11.57, 9.70, 11.32, 10.66, 10.38, 8.32, 10.58, 11.21, 6.10, 11.68, 14.80] },
+        { name: '건기식제약부문 Total', isGrandTotal: true, actual: [null,null,null,null,null,null,null,null,null,null,null,null], plan: [null,null,null,null,null,null,null,null,null,null,null,null], prev: [null,null,null,null,null,null,null,null,null,null,null,null] }
     ]
 };
 
@@ -514,6 +516,36 @@ function recalculateTotals() {
         grandRow.m2 = parseFloat((healthRow.m2 + pharmaRow.m2).toFixed(2));
         grandRow.ytd_prev = parseFloat((healthRow.ytd_prev + pharmaRow.ytd_prev).toFixed(2));
         grandRow.ytd_plan = parseFloat((healthRow.ytd_plan + pharmaRow.ytd_plan).toFixed(2));
+    }
+    
+    // 12개월 추이 통합 차트 데이터 갱신 (건기식 Total / 건기식+제약 Total)
+    const tNBT = appState.trends.find(t => t.name === 'NBT 연결');
+    const tBIO = appState.trends.find(t => t.name === 'BIO 연결');
+    const tPharma = appState.trends.find(t => t.name === '파마');
+    const tHealthTotal = appState.trends.find(t => t.name === '건기식부문 Total');
+    const tGrandTotal = appState.trends.find(t => t.name === '건기식제약부문 Total');
+
+    for (let m = 0; m < 12; m++) {
+        ['actual', 'plan', 'prev'].forEach(k => {
+            const v1 = tNBT ? tNBT[k][m] : null;
+            const v2 = tBIO ? tBIO[k][m] : null;
+            const v3 = tPharma ? tPharma[k][m] : null;
+            
+            if (tHealthTotal) {
+                if (v1 !== null || v2 !== null) {
+                    tHealthTotal[k][m] = parseFloat(((v1 || 0) + (v2 || 0)).toFixed(2));
+                } else {
+                    tHealthTotal[k][m] = null;
+                }
+            }
+            if (tGrandTotal) {
+                if (v1 !== null || v2 !== null || v3 !== null) {
+                    tGrandTotal[k][m] = parseFloat(((v1 || 0) + (v2 || 0) + (v3 || 0)).toFixed(2));
+                } else {
+                    tGrandTotal[k][m] = null;
+                }
+            }
+        });
     }
 }
 
@@ -679,7 +711,15 @@ function initMonthlyTrendCharts() {
         let themeGradient = ['rgba(98, 0, 234, 0.25)', 'rgba(98, 0, 234, 0)'];
         let borderCol = 'border-[#6200EA]';
 
-        if(entity.name.includes('BIO') || entity.name.includes('여행') || entity.name.includes('펫')) {
+        if(entity.isTotal) {
+            themeColor = '#059669'; // Emerald 600
+            themeGradient = ['rgba(5, 150, 105, 0.25)', 'rgba(5, 150, 105, 0)'];
+            borderCol = 'border-[#059669]';
+        } else if (entity.isGrandTotal) {
+            themeColor = '#2563EB'; // Blue 600
+            themeGradient = ['rgba(37, 99, 235, 0.25)', 'rgba(37, 99, 235, 0)'];
+            borderCol = 'border-[#2563EB]';
+        } else if(entity.name.includes('BIO') || entity.name.includes('여행') || entity.name.includes('펫')) {
             themeColor = '#00B8D4';
             themeGradient = ['rgba(0, 184, 212, 0.25)', 'rgba(0, 184, 212, 0)'];
             borderCol = 'border-[#00B8D4]';
@@ -961,13 +1001,16 @@ function openDataEditor() {
 
     const select = document.getElementById('trendEntitySelector');
     select.innerHTML = '';
+    let firstIdx = -1;
     appState.trends.forEach((t, i) => {
+        if(t.isTotal || t.isGrandTotal) return; // 에디터에서 통합 차트는 직접 수정 불가(자동계산)
+        if(firstIdx === -1) firstIdx = i;
         const opt = document.createElement('option');
         opt.value = i;
         opt.text = t.name;
         select.appendChild(opt);
     });
-    currentTrendEntityIndex = 0;
+    currentTrendEntityIndex = firstIdx !== -1 ? firstIdx : 0;
     renderTrendEditorTable();
     renderTableEditorAll();
 
@@ -1365,18 +1408,22 @@ function saveDataEditor() {
     recalculateTotals();
 
     // 12개월 추이 데이터의 3,4월 값을 요약/상세 테이블에서 수정한 최신값으로 완벽 동기화 매핑
-    appState.trends[0].actual[2] = appState.conn.mar.expected[0]; appState.trends[0].actual[3] = appState.conn.apr.expected[0];
-    appState.trends[5].actual[2] = appState.conn.mar.expected[1]; appState.trends[5].actual[3] = appState.conn.apr.expected[1];
+    appState.trends[1].actual[2] = appState.conn.mar.expected[0]; appState.trends[1].actual[3] = appState.conn.apr.expected[0];
+    appState.trends[6].actual[2] = appState.conn.mar.expected[1]; appState.trends[6].actual[3] = appState.conn.apr.expected[1];
     
-    appState.trends[1].actual[2] = appState.mar.expected[0]; appState.trends[1].actual[3] = appState.apr.expected[0];
-    appState.trends[2].actual[2] = appState.mar.expected[1]; appState.trends[2].actual[3] = appState.apr.expected[1];
-    appState.trends[3].actual[2] = appState.mar.expected[2]; appState.trends[3].actual[3] = appState.apr.expected[2];
-    appState.trends[4].actual[2] = appState.mar.expected[3]; appState.trends[4].actual[3] = appState.apr.expected[3];
-    appState.trends[6].actual[2] = appState.mar.expected[4]; appState.trends[6].actual[3] = appState.apr.expected[4];
-    appState.trends[7].actual[2] = appState.mar.expected[5]; appState.trends[7].actual[3] = appState.apr.expected[5];
-    appState.trends[8].actual[2] = appState.mar.expected[6]; appState.trends[8].actual[3] = appState.apr.expected[6];
-    appState.trends[9].actual[2] = appState.mar.expected[7]; appState.trends[9].actual[3] = appState.apr.expected[7];
-    appState.trends[10].actual[2] = appState.mar.expected[8]; appState.trends[10].actual[3] = appState.apr.expected[8];
+    // 법인 순서 변경 반영 (한국, 중국, 호주, 미국)
+    appState.trends[2].actual[2] = appState.mar.expected[0]; appState.trends[2].actual[3] = appState.apr.expected[0];
+    appState.trends[3].actual[2] = appState.mar.expected[1]; appState.trends[3].actual[3] = appState.apr.expected[1];
+    appState.trends[4].actual[2] = appState.mar.expected[2]; appState.trends[4].actual[3] = appState.apr.expected[2];
+    appState.trends[5].actual[2] = appState.mar.expected[3]; appState.trends[5].actual[3] = appState.apr.expected[3];
+    appState.trends[7].actual[2] = appState.mar.expected[4]; appState.trends[7].actual[3] = appState.apr.expected[4];
+    appState.trends[8].actual[2] = appState.mar.expected[5]; appState.trends[8].actual[3] = appState.apr.expected[5];
+    appState.trends[9].actual[2] = appState.mar.expected[6]; appState.trends[9].actual[3] = appState.apr.expected[6];
+    appState.trends[10].actual[2] = appState.mar.expected[7]; appState.trends[10].actual[3] = appState.apr.expected[7];
+    appState.trends[11].actual[2] = appState.mar.expected[8]; appState.trends[11].actual[3] = appState.apr.expected[8];
+
+    // 자동 합산 로직 재실행 (업데이트된 3,4월 값을 통합 차트에도 반영)
+    recalculateTotals();
 
     // 화면 렌더링 업데이트
     updatePeriodTexts();
