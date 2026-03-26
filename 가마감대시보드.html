@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026년 3~4월 그룹 경영 실적 종합 대시보드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: #1E293B; }
+.chart-container { position: relative; width: 100%; max-width: 100%; margin: 0 auto; height: 350px; max-height: 500px; }
+@media (min-width: 768px) { .chart-container { height: 480px; } }
+.trend-chart-container { position: relative; width: 100%; height: 280px; }
+.glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #FFFFFF; border-left: 1px solid #FFFFFF; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); border-radius: 1.5rem; padding: 1.5rem; }
+.accent-gradient { background: linear-gradient(135deg, #6200EA 0%, #00E5FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.bg-accent-gradient { background: linear-gradient(135deg, #6200EA 0%, #00E5FF 100%); }
+/* 스크롤바 스타일링 */
+.custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+/* 탭 버튼 스타일 */
+.tab-btn { border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab-btn.active { border-bottom: 2px solid #6200EA; color: #6200EA; font-weight: 800; }
+/* 테이블 Sticky 설정 */
+.sticky-col { position: sticky; left: 0; z-index: 10; box-shadow: 1px 0 0 #E2E8F0; }
+.sticky-col-header { position: sticky; left: 0; z-index: 30; box-shadow: 1px 0 0 #CBD5E1; }
+/* 에디터 내부 테이블 입력 폼 */
+.editor-input { width: 100%; min-width: 50px; padding: 4px; border: 1px solid #E2E8F0; border-radius: 4px; text-align: center; font-size: 12px; }
+.editor-input:focus { border-color: #6200EA; outline: none; box-shadow: 0 0 0 1px #6200EA; }
+.editor-input:disabled { background-color: #F1F5F9; color: #94A3B8; cursor: not-allowed; }
+</style>
+</head>
+<body class="antialiased pb-20">
+
+<header class="bg-white shadow-sm sticky top-0 z-50 mb-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
+<div>
+<h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">경영 대시보드 <span id="header-period-badge" class="accent-gradient">2026.03</span></h1>
+</div>
+<div class="hidden md:flex items-center space-x-3 text-sm font-medium">
+<button onclick="openDataEditor()" class="bg-white border-2 border-[#6200EA]/30 text-[#6200EA] hover:bg-[#6200EA] hover:text-white transition-colors py-2 px-4 rounded-full flex items-center shadow-sm font-bold">
+⚙️ 데이터 통합 수정
+</button>
+</div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+
+<!-- 모바일 전용 데이터 수정 버튼 -->
+<div class="md:hidden flex justify-end -mt-4 mb-4">
+<button onclick="openDataEditor()" class="bg-white border-2 border-[#6200EA]/30 text-[#6200EA] hover:bg-[#6200EA] hover:text-white transition-colors py-2 px-4 rounded-full flex items-center shadow-sm font-bold text-sm w-full justify-center">
+⚙️ 데이터 통합 수정
+</button>
+</div>
+
+<section id="group-overview">
+<div class="glass-card bg-accent-gradient text-white !border-none mb-8">
+<h3 class="text-xl font-bold mb-6 flex items-center gap-2"><span>&#128161;</span> [건기식부문] <span id="section1-period-title">2026년 3~4월 가마감매출</span></h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-5">
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m1-text">3월</span> NBT 연결</p>
+<p id="sum-mar-nbt-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-mar-nbt-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-mar-nbt-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m1-text">3월</span> BIO 연결</p>
+<p id="sum-mar-bio-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-mar-bio-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-mar-bio-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m1-text">3월</span> 건기식 합산</p>
+<p id="sum-mar-total-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-mar-total-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-mar-total-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m2-text">4월</span> NBT 연결</p>
+<p id="sum-apr-nbt-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-apr-nbt-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-apr-nbt-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m2-text">4월</span> BIO 연결</p>
+<p id="sum-apr-bio-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-apr-bio-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-apr-bio-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m2-text">4월</span> 건기식 합산</p>
+<p id="sum-apr-total-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-apr-total-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-apr-total-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="glass-card">
+<h3 class="text-lg font-bold text-gray-800 mb-4">법인별 세부 매출 현황 <span class="text-base font-medium text-gray-500 ml-1">(단위: 억원)</span></h3>
+<div class="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 mb-0 pb-0 relative z-10 text-[12px] font-bold text-gray-700 px-4 py-2 rounded-xl bg-gray-50/80 border border-gray-100 shadow-sm">
+<div class="flex items-center gap-1.5"><span class="block w-5 h-0 border-t-2 border-[#E11D48]"></span> 목표치 (Plan)</div>
+<div class="flex items-center gap-1.5"><span class="block w-5 h-0.5 bg-[#64748B]"></span> 전년 동기 (YoY)</div>
+<div class="flex items-center gap-1.5 ml-2">🟢 <span class="font-medium text-gray-600">달성 (100%↑)</span></div>
+<div class="flex items-center gap-1.5">🟡 <span class="font-medium text-gray-600">주의 (90%대)</span></div>
+<div class="flex items-center gap-1.5">🔴 <span class="font-medium text-gray-600">미달 (90%↓)</span></div>
+</div>
+<div class="chart-container overflow-x-auto -mt-2">
+<div style="min-width: 1000px; height: 100%;">
+<canvas id="groupTrendChart"></canvas>
+</div>
+</div>
+</div>
+</section>
+
+<section id="detailed-table-section" class="border-t border-gray-200 pt-8">
+    <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-gray-800">상세 실적 종합표 <span class="text-base font-medium text-gray-500 ml-1">(단위: 억원)</span></h3>
+    </div>
+    <div class="glass-card !p-0 overflow-hidden shadow-sm border border-gray-200">
+        <div class="overflow-x-auto custom-scrollbar pb-2 border-collapse">
+            <table class="w-full text-[12px] text-right whitespace-nowrap border-collapse tracking-tight leading-snug">
+                <thead class="text-slate-700 text-center font-bold sticky top-0 z-20">
+                    <tr class="bg-slate-100">
+                        <th rowspan="2" class="py-1.5 px-2 border border-slate-300 sticky-col-header bg-slate-200 text-center w-28 shadow-[1px_0_0_#CBD5E1]">구분</th>
+                        <th rowspan="2" class="py-1.5 px-2 border border-slate-300 bg-slate-200">1월 실적</th>
+                        <th rowspan="2" class="py-1.5 px-2 border border-slate-300 bg-slate-200">2월 실적</th>
+                        <th colspan="5" class="py-1.5 px-2 border border-slate-300 bg-indigo-100/70 text-indigo-900">3월</th>
+                        <th colspan="5" class="py-1.5 px-2 border border-slate-300 bg-cyan-100/70 text-cyan-900 font-extrabold">4월</th>
+                        <th colspan="5" class="py-1.5 px-2 border border-slate-300 bg-emerald-100/70 text-emerald-900">4월 누적</th>
+                    </tr>
+                    <tr class="text-[11px] bg-slate-50">
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-500 bg-indigo-50/50">전년</th>
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-600 bg-indigo-50/50">계획</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-indigo-700 font-bold bg-indigo-100/50">예상</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-indigo-50/50">계획비</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-indigo-50/50">전년비</th>
+                        
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-500 bg-cyan-50/50">전년</th>
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-600 bg-cyan-50/50">계획</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-cyan-700 font-bold bg-cyan-100/50">예상</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-cyan-50/50">계획비</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-cyan-50/50">전년비</th>
+                        
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-500 bg-emerald-50/50">전년</th>
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-600 bg-emerald-50/50">계획</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-emerald-700 font-bold bg-emerald-100/50">예상</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-emerald-50/50">계획비</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-emerald-50/50">전년비</th>
+                    </tr>
+                </thead>
+                <tbody id="detailedTableBody" class="bg-white">
+                    <!-- JS Rendering -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section id="monthly-trends-section" class="border-t border-gray-200 pt-8">
+<div class="mb-4">
+<h3 class="text-lg font-bold text-gray-800">법인별 12개월 매출 추이 현황 <span class="text-base font-medium text-gray-500 ml-1">(단위: 억원)</span></h3>
+<div class="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 mt-2 text-[12px] font-bold text-gray-600">
+    <div class="flex items-center gap-1.5"><span class="w-4 h-1 rounded-full bg-gradient-to-r from-[#6200EA] to-[#00E5FF]"></span> 실적 (법인별 테마컬러)</div>
+    <div class="flex items-center gap-1.5"><span class="w-4 h-0 border-t-2 border-dashed border-[#94A3B8]"></span> 사업계획</div>
+    <div class="flex items-center gap-1.5"><span class="w-4 h-0.5 bg-[#E2E8F0]"></span> 전년실적</div>
+</div>
+</div>
+<div id="trend-charts-wrapper" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <!-- JS에서 에어리어 라인 차트 컨테이너들이 동적 생성됩니다. -->
+</div>
+</section>
+
+</main>
+
+<!-- Data Editor Modal -->
+<div id="dataEditorModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center transition-opacity opacity-0 duration-300">
+    <div class="bg-white rounded-2xl w-[95%] max-w-[1200px] max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <h3 class="text-xl font-bold text-gray-800">⚙️ 데이터 수치 통합 편집</h3>
+            <button onclick="closeDataEditor()" class="text-gray-400 hover:text-gray-800 text-3xl leading-none">&times;</button>
+        </div>
+        
+        <!-- 탭 메뉴 -->
+        <div class="flex border-b border-gray-200 px-6 pt-2 bg-gray-50 overflow-x-auto custom-scrollbar">
+            <button onclick="switchEditorTab('summary')" id="tabBtnSummary" class="tab-btn active px-4 py-2.5 text-gray-600 font-semibold mr-2 focus:outline-none whitespace-nowrap">상단 요약 및 차트 (2개월)</button>
+            <button onclick="switchEditorTab('trends')" id="tabBtnTrends" class="tab-btn px-4 py-2.5 text-gray-600 font-semibold mr-2 focus:outline-none whitespace-nowrap">월별 추이 (1~12월)</button>
+            <button onclick="switchEditorTab('table')" id="tabBtnTable" class="tab-btn px-4 py-2.5 text-gray-600 font-semibold mr-2 focus:outline-none whitespace-nowrap">상세 실적표 전체 수치</button>
+            <button onclick="switchEditorTab('upload')" id="tabBtnUpload" class="tab-btn px-4 py-2.5 text-[#00E5FF] font-black focus:outline-none whitespace-nowrap flex items-center gap-1">🚀 구글 시트 연동</button>
+        </div>
+
+        <!-- 1. 요약(2개월) 에디터 뷰 -->
+        <div id="editorViewSummary" class="flex-1 flex flex-col overflow-hidden">
+            <div class="px-6 py-4 bg-white border-b border-gray-100 flex flex-wrap gap-4 items-center">
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-bold text-gray-700">보고 연도:</label>
+                    <input type="number" id="edit-year" class="w-24 p-1.5 border border-gray-300 rounded text-center font-bold text-[#6200EA] focus:ring-2 focus:ring-[#6200EA] outline-none">
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-bold text-gray-700">기준 월 (가마감):</label>
+                    <input type="number" id="edit-m1" class="w-16 p-1.5 border border-gray-300 rounded text-center font-bold text-[#6200EA] focus:ring-2 focus:ring-[#6200EA] outline-none">
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-bold text-gray-700">비교 월 (예상):</label>
+                    <input type="number" id="edit-m2" class="w-16 p-1.5 border border-gray-300 rounded text-center font-bold text-[#00E5FF] focus:ring-2 focus:ring-[#00E5FF] outline-none">
+                </div>
+                <span class="text-xs text-gray-500 ml-auto">* 소수점 2자리까지 입력 가능. 1,2월 및 세부 항목(국내/해외)은 [상세 실적표 전체 수치] 탭에서 수정하세요.</span>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                    <table class="w-full text-sm text-center border-collapse">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0 shadow-sm z-10">
+                            <tr>
+                                <th class="px-4 py-3 bg-gray-200 font-bold border border-gray-300">지표명</th>
+                                <th class="px-3 py-3 bg-indigo-50/70 border border-gray-300"><span class="period-m1-text">3월</span> 예상</th>
+                                <th class="px-3 py-3 bg-indigo-50/70 border border-gray-300"><span class="period-m1-text">3월</span> 계획</th>
+                                <th class="px-3 py-3 bg-indigo-50/70 border border-gray-300"><span class="period-m1-text">3월</span> 전년</th>
+                                <th class="px-3 py-3 bg-cyan-50/70 border border-gray-300"><span class="period-m2-text">4월</span> 예상</th>
+                                <th class="px-3 py-3 bg-cyan-50/70 border border-gray-300"><span class="period-m2-text">4월</span> 계획</th>
+                                <th class="px-3 py-3 bg-cyan-50/70 border border-gray-300"><span class="period-m2-text">4월</span> 전년</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editorTableBody" class="divide-y divide-gray-200">
+                            <!-- JS로 동적 생성됨 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 1~12월 트렌드 에디터 뷰 -->
+        <div id="editorViewTrends" class="hidden flex-1 flex flex-col overflow-hidden">
+            <div class="px-6 py-4 bg-white border-b border-gray-100 flex items-center gap-4">
+                <label class="text-sm font-bold text-gray-700">편집할 법인 선택:</label>
+                <select id="trendEntitySelector" onchange="changeTrendEntity()" class="p-2 border border-gray-300 rounded font-bold text-[#6200EA] focus:ring-2 focus:ring-[#6200EA] outline-none cursor-pointer shadow-sm">
+                    <!-- JS로 동적 옵션 생성 -->
+                </select>
+                <span class="text-xs text-gray-500 ml-auto">* 소수점 2자리까지 입력 가능. 값이 비어있으면(빈칸) 미확정 실적으로 간주하여 렌더링하지 않습니다.</span>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                    <table class="w-full text-sm text-center border-collapse">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0 shadow-sm z-10">
+                            <tr>
+                                <th class="px-4 py-3 bg-gray-200 font-bold border border-gray-300 w-24">월 (Month)</th>
+                                <th class="px-4 py-3 bg-indigo-50/70 border border-gray-300 text-[#6200EA]">실적 (Actual)</th>
+                                <th class="px-4 py-3 bg-gray-50 border border-gray-300 text-gray-700">사업계획 (Plan)</th>
+                                <th class="px-4 py-3 bg-gray-50 border border-gray-300 text-gray-500">전년실적 (Prev)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trendEditorTableBody" class="divide-y divide-gray-200">
+                            <!-- JS로 동적 생성됨 (12개월) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 상세 실적표 전체 수치 에디터 뷰 -->
+        <div id="editorViewTable" class="hidden flex-1 flex flex-col overflow-hidden">
+            <div class="px-6 py-3 bg-white border-b border-gray-100 flex items-center justify-between">
+                <span class="text-xs font-bold text-[#6200EA]">* 1월/2월 실적, 세부 항목(국내, 해외, 기타, 제천, 오송), 4월 누적 전년/계획 데이터를 수정할 수 있습니다. <br> (단, 3~4월 실적은 상단 차트와 자동으로 연동되며 음영 필드는 수정 불가합니다.)</span>
+            </div>
+            <div class="p-4 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                <div class="overflow-x-auto border border-gray-200 rounded-xl shadow-sm bg-white">
+                    <table class="w-full text-xs text-center border-collapse">
+                        <thead class="bg-gray-100 sticky top-0 shadow-sm z-10 text-gray-700 font-bold">
+                            <tr>
+                                <th rowspan="2" class="px-2 py-1 border border-gray-300 bg-gray-200 min-w-[100px]">구분</th>
+                                <th rowspan="2" class="px-1 py-1 border border-gray-300 bg-gray-200">1월실적</th>
+                                <th rowspan="2" class="px-1 py-1 border border-gray-300 bg-gray-200">2월실적</th>
+                                <th colspan="3" class="px-1 py-1 border border-gray-300 bg-indigo-100/50 text-indigo-800">3월</th>
+                                <th colspan="3" class="px-1 py-1 border border-gray-300 bg-cyan-100/50 text-cyan-800">4월</th>
+                                <th colspan="2" class="px-1 py-1 border border-gray-300 bg-emerald-100/50 text-emerald-800">4월 누적</th>
+                            </tr>
+                            <tr class="bg-gray-50 text-gray-600">
+                                <th class="px-1 py-1 border border-gray-300 font-medium">전년</th>
+                                <th class="px-1 py-1 border border-gray-300 font-medium">계획</th>
+                                <th class="px-1 py-1 border border-gray-300 text-indigo-700">예상</th>
+                                <th class="px-1 py-1 border border-gray-300 font-medium">전년</th>
+                                <th class="px-1 py-1 border border-gray-300 font-medium">계획</th>
+                                <th class="px-1 py-1 border border-gray-300 text-cyan-700">예상</th>
+                                <th class="px-1 py-1 border border-gray-300 font-medium">전년</th>
+                                <th class="px-1 py-1 border border-gray-300 font-medium">계획</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editorTableBodyAll" class="divide-y divide-gray-200">
+                            <!-- JS로 동적 생성됨 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 구글 시트 연동 에디터 뷰 -->
+        <div id="editorViewUpload" class="hidden flex-1 flex flex-col overflow-hidden">
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
+                <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm max-w-4xl mx-auto">
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">📊 구글 스프레드시트 일괄 연동</h4>
+                    <p class="text-sm text-gray-600 mb-6">대시보드의 전체 데이터를 엑셀/구글 시트 형식으로 복사하여 외부에서 한 번에 편집한 후, 다시 붙여넣어 업데이트할 수 있습니다.</p>
+                    
+                    <div class="flex flex-col gap-6">
+                        <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                            <p class="text-sm font-bold text-indigo-900 mb-2">1단계: 대시보드 데이터 양식 복사하기</p>
+                            <button id="copyBtn" onclick="copyTemplateToClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm font-bold transition-colors">📋 스프레드시트용 양식 복사</button>
+                            <p class="text-xs text-indigo-700 mt-2">* 버튼을 눌러 양식을 복사한 뒤 구글 시트의 <span class="font-bold">A1 셀</span>에 붙여넣기(Ctrl+V) 하세요.<br>* 구글 시트에서 수치 데이터를 자유롭게 수정하세요.</p>
+                        </div>
+
+                        <div class="p-4 bg-cyan-50 rounded-lg border border-cyan-100">
+                            <p class="text-sm font-bold text-cyan-900 mb-2">2단계: 구글 시트에서 수정한 데이터 적용하기</p>
+                            <textarea id="tsvInput" class="w-full h-40 p-3 border border-gray-300 rounded text-xs font-mono mb-3 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="여기에 구글 시트에서 수정 완료한 데이터 영역 전체를 복사하여 붙여넣기(Ctrl+V) 하세요..."></textarea>
+                            <button id="applyBtn" onclick="parseAndApplyTSV()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 rounded shadow text-sm font-bold transition-colors w-full">🚀 데이터 파싱 및 대시보드 업데이트</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 bg-gray-50">
+            <button onclick="closeDataEditor()" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 font-medium transition-colors">닫기 (취소)</button>
+            <button onclick="saveDataEditor()" class="px-6 py-2.5 text-white bg-gradient-to-r from-[#6200EA] to-[#00E5FF] rounded-lg hover:from-[#5000C0] hover:to-[#00C5E0] font-bold shadow-md transition-all hover:shadow-lg">저장 및 전체 업데이트</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 전역 애플리케이션 상태: PDF 문서의 정확한 소수점 2자리 값 적용 완료
+const appState = {
+    period: { year: 2026, m1: 3, m2: 4 },
+    // 요약 카드 및 테이블용 (2개월치)
+    conn: {
+        subs: ['NBT 연결', 'BIO 연결', '건기식 합산'],
+        mar: { expected: [314.86, 171.05, 485.91], plan: [275.00, 169.95, 444.95], prev: [233.38, 145.08, 378.45] },
+        apr: { expected: [352.26, 178.80, 531.06], plan: [310.00, 175.07, 485.07], prev: [232.59, 133.35, 365.94] }
+    },
+    // 법인별 바 차트 및 테이블용 (2개월치) - NBT한국, 중국, 호주, 미국 순서 보장
+    subs: ['NBT 한국', 'NBT 중국', 'NBT 호주', 'NBT 미국', 'BIO 한국', 'BIO 상해', '건강여행', '펫법인', '파마'],
+    colorsMar: ['#4A148C', '#AB47BC', '#7B1FA2', '#CE93D8', '#006064', '#0097A7', '#26C6DA', '#80DEEA', '#E65100'],
+    colorsApr: ['#7B1FA2', '#CE93D8', '#9C27B0', '#E1BEE7', '#00838F', '#00BCD4', '#4DD0E1', '#B2EBF2', '#FF9800'],
+    mar: {
+        expected: [245.88, 95.48, 65.12, 6.76, 140.04, 17.59, 5.97, 10.10, 32.23],
+        plan: [208.50, 76.07, 56.38, 2.04, 136.02, 15.29, 10.37, 10.08, 33.27],
+        prev: [157.42, 71.39, 48.08, 15.97, 120.65, 14.69, 7.94, 6.32, 29.95]
+    },
+    apr: {
+        expected: [283.57, 110.44, 58.25, 16.65, 146.80, 16.50, 5.90, 11.50, 32.03],
+        plan: [245.50, 81.63, 56.81, 16.76, 142.16, 16.92, 6.25, 11.20, 44.11],
+        prev: [164.31, 51.28, 47.09, 20.95, 106.57, 16.14, 5.58, 6.06, 29.95]
+    },
+    // 전체 월별 트렌드 차트 데이터 (신규 첨부 PDF 기반 수치 소수점 2자리 업데이트)
+    trends: [
+        { name: 'NBT 연결', actual: [327.73, 286.40, 314.86, 352.26, null, null, null, null, null, null, null, null], plan: [285.00, 255.00, 275.00, 310.00, 305.00, 295.00, 290.00, 270.00, 315.00, 315.00, 310.00, 265.00], prev: [255.70, 232.69, 233.38, 232.59, 273.22, 250.71, 219.72, 206.74, 230.24, 236.63, 270.36, 232.56] },
+        { name: 'NBT 한국', actual: [279.26, 203.74, 245.88, 283.57, null, null, null, null, null, null, null, null], plan: [232.50, 201.50, 208.50, 245.50, 230.50, 232.50, 219.50, 208.50, 247.50, 243.50, 232.50, 197.50], prev: [192.17, 166.49, 157.42, 164.31, 184.36, 171.15, 144.76, 152.84, 166.01, 173.20, 209.68, 187.03] },
+        { name: 'NBT 중국', actual: [115.07, 85.55, 95.48, 110.44, null, null, null, null, null, null, null, null], plan: [85.80, 71.45, 76.07, 81.63, 81.37, 77.13, 80.76, 80.47, 81.37, 88.88, 71.91, 78.78], prev: [102.43, 70.39, 71.39, 51.28, 89.56, 68.18, 51.66, 49.68, 44.70, 56.90, 57.35, 76.00] },
+        { name: 'NBT 호주', actual: [52.55, 61.54, 65.12, 58.25, null, null, null, null, null, null, null, null], plan: [45.36, 51.38, 56.38, 56.81, 57.68, 50.92, 61.73, 46.73, 53.32, 55.93, 58.76, 43.92], prev: [16.89, 41.90, 48.08, 47.09, 45.09, 40.10, 47.25, 47.63, 54.22, 52.14, 57.70, 35.98] },
+        { name: 'NBT 미국', actual: [18.30, 9.04, 6.76, 16.65, null, null, null, null, null, null, null, null], plan: [18.84, 11.56, 2.04, 16.76, 23.10, 13.62, 15.44, 14.95, 26.49, 28.50, 27.52, 27.45], prev: [24.93, 15.22, 15.97, 20.95, 31.26, 32.86, 26.04, 8.65, 5.14, 19.18, 16.75, 3.46] },
+        { name: 'BIO 연결', actual: [159.81, 141.46, 171.05, 178.80, null, null, null, null, null, null, null, null], plan: [161.74, 140.25, 169.95, 175.07, 165.05, 176.09, 171.66, 169.19, 194.63, 183.27, 180.60, 185.62], prev: [122.74, 106.46, 145.08, 133.35, 141.73, 140.16, 132.44, 133.13, 170.46, 155.86, 155.26, 145.13] },
+        { name: 'BIO 한국', actual: [132.34, 120.20, 140.04, 146.80, null, null, null, null, null, null, null, null], plan: [129.50, 114.18, 136.02, 142.16, 131.27, 141.03, 135.27, 140.01, 153.57, 140.75, 141.37, 145.31], prev: [104.22, 88.35, 120.65, 106.57, 118.63, 110.17, 110.90, 113.15, 142.21, 133.58, 133.77, 126.16] },
+        { name: 'BIO 상해', actual: [14.66, 12.78, 17.59, 16.50, null, null, null, null, null, null, null, null], plan: [13.47, 15.12, 15.29, 16.92, 18.51, 16.80, 17.45, 16.53, 17.77, 18.00, 17.21, 17.02], prev: [9.74, 9.06, 14.69, 16.14, 15.46, 21.94, 14.46, 13.88, 13.80, 10.43, 10.20, 8.15] },
+        { name: '건강여행', actual: [12.96, 7.97, 5.97, 5.90, null, null, null, null, null, null, null, null], plan: [14.91, 9.75, 10.37, 6.25, 6.50, 8.19, 8.96, 7.40, 12.64, 13.26, 10.60, 14.16], prev: [8.90, 4.93, 7.94, 5.58, 15.66, 15.66, 7.84, 6.75, 11.95, 5.65, 6.69, 8.53] },
+        { name: '펫법인', actual: [8.99, 6.26, 10.10, 11.50, null, null, null, null, null, null, null, null], plan: [10.00, 9.20, 10.08, 11.20, 11.20, 12.32, 10.40, 9.60, 13.44, 13.44, 15.68, 13.44], prev: [5.86, 6.33, 6.32, 6.06, 6.97, 6.78, 6.76, 7.02, 7.65, 8.98, 8.98, 7.07] },
+        { name: '파마', actual: [30.43, 20.47, 32.23, 32.03, null, null, null, null, null, null, null, null], plan: [29.93, 35.68, 33.27, 44.11, 37.94, 36.69, 44.06, 47.79, 48.43, 49.62, 45.22, 47.26], prev: [29.40, 25.30, 29.95, 29.95, 31.42, 27.62, 23.70, 23.81, 33.01, 30.46, 27.23, 37.84] },
+        { name: '파마 제천', actual: [22.84, 12.66, 21.14, 14.64, null, null, null, null, null, null, null, null], plan: [16.07, 21.12, 17.67, 29.92, 21.90, 21.22, 28.68, 31.80, 35.23, 36.90, 29.37, 31.45], prev: [21.30, 13.73, 20.25, 18.63, 20.77, 17.24, 15.38, 13.23, 21.80, 24.36, 15.56, 23.04] },
+        { name: '파마 오송', actual: [7.60, 7.81, 11.09, 17.39, null, null, null, null, null, null, null, null], plan: [13.85, 14.56, 15.60, 14.19, 16.04, 15.47, 15.38, 15.99, 13.20, 12.72, 15.85, 15.82], prev: [8.10, 11.57, 9.70, 11.32, 10.66, 10.38, 8.32, 10.58, 11.21, 6.10, 11.68, 14.80] }
+    ]
+};
+
+// 상세 실적 종합표 전체 데이터 통합 관리 상태
+appState.detailedTable = [
+    { name: 'NBT연결', type: 'conn', stateIdx: 0, m1: 327.73, m2: 286.40, ytd_prev: 954.36, ytd_plan: 1125.00 },
+    { name: 'NBT한국', type: 'sub', stateIdx: 0, m1: 279.26, m2: 203.74, ytd_prev: 680.38, ytd_plan: 888.00 },
+    { name: '국내', type: 'static', m1: 103.53, m2: 80.23, mar_prev: 68.32, mar_plan: 95.00, mar_exp: 102.50, apr_prev: 75.30, apr_plan: 100.00, apr_exp: 110.00, ytd_prev: 293.13, ytd_plan: 360.00, indent: true },
+    { name: '해외', type: 'static', m1: 172.58, m2: 121.05, mar_prev: 89.95, mar_plan: 111.00, mar_exp: 140.88, apr_prev: 83.59, apr_plan: 143.00, apr_exp: 171.07, ytd_prev: 373.62, ytd_plan: 518.00, indent: true },
+    { name: '기타', type: 'static', m1: 3.15, m2: 2.45, mar_prev: -0.84, mar_plan: 2.50, mar_exp: 2.50, apr_prev: 5.42, apr_plan: 2.50, apr_exp: 2.50, ytd_prev: 13.63, ytd_plan: 10.00, indent: true },
+    { name: 'NBT중국(직구포함)', type: 'sub', stateIdx: 1, m1: 115.07, m2: 85.55, ytd_prev: 295.49, ytd_plan: 314.95 },
+    { name: 'NBT호주', type: 'sub', stateIdx: 2, m1: 52.55, m2: 61.54, ytd_prev: 153.97, ytd_plan: 209.93 },
+    { name: 'NBT미국', type: 'sub', stateIdx: 3, m1: 18.30, m2: 9.04, ytd_prev: 77.06, ytd_plan: 49.20 },
+    { name: 'BIO연결', type: 'conn', stateIdx: 1, m1: 159.81, m2: 141.46, ytd_prev: 507.63, ytd_plan: 647.00 },
+    { name: 'BIO한국', type: 'sub', stateIdx: 4, m1: 132.34, m2: 120.20, ytd_prev: 419.79, ytd_plan: 521.86 },
+    { name: '국내', type: 'static', m1: 107.97, m2: 112.00, mar_prev: 96.24, mar_plan: 117.87, mar_exp: 108.40, apr_prev: 95.23, apr_plan: 121.58, apr_exp: 115.60, ytd_prev: 352.23, ytd_plan: 451.80, indent: true },
+    { name: '해외', type: 'static', m1: 24.37, m2: 8.20, mar_prev: 24.41, mar_plan: 18.15, mar_exp: 31.64, apr_prev: 11.34, apr_plan: 20.59, apr_exp: 31.20, ytd_prev: 67.56, ytd_plan: 70.06, indent: true },
+    { name: 'BIO상해', type: 'sub', stateIdx: 5, m1: 14.66, m2: 12.78, ytd_prev: 49.64, ytd_plan: 60.80 },
+    { name: '건강여행', type: 'sub', stateIdx: 6, m1: 12.96, m2: 7.97, ytd_prev: 27.36, ytd_plan: 41.28 },
+    { name: 'PET', type: 'sub', stateIdx: 7, m1: 8.99, m2: 6.26, ytd_prev: 24.57, ytd_plan: 40.48 },
+    { name: '건기식 Total', type: 'conn', stateIdx: 2, m1: 487.53, m2: 427.86, ytd_prev: 1461.99, ytd_plan: 1772.00, isTotal: true },
+    { name: '파마', type: 'sub', stateIdx: 8, m1: 30.43, m2: 20.47, ytd_prev: 114.59, ytd_plan: 142.99 },
+    { name: '제천', type: 'static', m1: 22.84, m2: 12.66, mar_prev: 20.25, mar_plan: 17.67, mar_exp: 21.14, apr_prev: 18.63, apr_plan: 29.92, apr_exp: 14.64, ytd_prev: 73.90, ytd_plan: 84.78, indent: true },
+    { name: '오송', type: 'static', m1: 7.60, m2: 7.81, mar_prev: 9.70, mar_plan: 15.60, mar_exp: 11.09, apr_prev: 11.32, apr_plan: 14.19, apr_exp: 17.39, ytd_prev: 40.69, ytd_plan: 58.21, indent: true },
+    { name: '건기식 + 제약', type: 'grand_total', m1: 517.97, m2: 448.33, ytd_prev: 1576.58, ytd_plan: 1914.99, isTotal: true }
+];
+
+let chartGroupTrend;
+let trendChartInstances = [];
+let currentActiveTab = 'summary';
+
+// 전역 데이터 자동 합산 로직 (건기식 Total, 건기식+제약 Total 자동 계산, 소수점 2자리 보정)
+function recalculateTotals() {
+    ['expected', 'plan', 'prev'].forEach(key => {
+        appState.conn.mar[key][2] = parseFloat((appState.conn.mar[key][0] + appState.conn.mar[key][1]).toFixed(2));
+        appState.conn.apr[key][2] = parseFloat((appState.conn.apr[key][0] + appState.conn.apr[key][1]).toFixed(2));
+    });
+
+    const tbl = appState.detailedTable;
+    const nbtRow = tbl.find(r => r.name === 'NBT연결');
+    const bioRow = tbl.find(r => r.name === 'BIO연결');
+    const pharmaRow = tbl.find(r => r.name === '파마');
+    const healthRow = tbl.find(r => r.name === '건기식 Total');
+    const grandRow = tbl.find(r => r.name === '건기식 + 제약');
+
+    if(healthRow && nbtRow && bioRow) {
+        healthRow.m1 = parseFloat((nbtRow.m1 + bioRow.m1).toFixed(2));
+        healthRow.m2 = parseFloat((nbtRow.m2 + bioRow.m2).toFixed(2));
+        healthRow.ytd_prev = parseFloat((nbtRow.ytd_prev + bioRow.ytd_prev).toFixed(2));
+        healthRow.ytd_plan = parseFloat((nbtRow.ytd_plan + bioRow.ytd_plan).toFixed(2));
+    }
+    if(grandRow && healthRow && pharmaRow) {
+        grandRow.m1 = parseFloat((healthRow.m1 + pharmaRow.m1).toFixed(2));
+        grandRow.m2 = parseFloat((healthRow.m2 + pharmaRow.m2).toFixed(2));
+        grandRow.ytd_prev = parseFloat((healthRow.ytd_prev + pharmaRow.ytd_prev).toFixed(2));
+        grandRow.ytd_plan = parseFloat((healthRow.ytd_plan + pharmaRow.ytd_plan).toFixed(2));
+    }
+}
+
+// UI 표기용 - 항상 정수 반올림 및 천단위 콤마 표시 (소수점을 절대 표기하지 않음)
+const formatVal = (val) => (val === null || val === undefined || isNaN(val)) ? '-' : Math.round(val).toLocaleString('ko-KR');
+const formatChartVal = (val) => (val === null || val === undefined || isNaN(val)) ? 0 : Math.round(val);
+
+const calcRatio = (val, base) => (!base || base === 0 || isNaN(val) || isNaN(base)) ? '-' : Math.round((val / base) * 100);
+const calcYoY = (val, prev) => {
+    if (val === null || val === undefined || isNaN(val) || !prev || prev === 0 || isNaN(prev)) return '-';
+    const rate = Math.round(((val - prev) / Math.abs(prev)) * 100);
+    return rate > 0 ? '+' + rate : rate.toString();
+};
+
+function generateTrendLabels() {
+    return ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+}
+
+function updatePeriodTexts() {
+    const { year, m1, m2 } = appState.period;
+    document.getElementById('header-period-badge').innerText = `${year}.${String(m1).padStart(2, '0')}`;
+    document.querySelectorAll('.period-m1-text').forEach(el => el.innerText = `${m1}월`);
+    document.querySelectorAll('.period-m2-text').forEach(el => el.innerText = `${m2}월`);
+}
+
+function updateSummaryCards() {
+    const cMar = appState.conn.mar;
+    const cApr = appState.conn.apr;
+
+    document.getElementById('sum-mar-nbt-exp').innerHTML = `${formatVal(cMar.expected[0])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-mar-nbt-plan').innerText = `${calcRatio(cMar.expected[0], cMar.plan[0])}%`;
+    document.getElementById('sum-mar-nbt-yoy').innerText = `${calcYoY(cMar.expected[0], cMar.prev[0])}%`;
+    document.getElementById('sum-mar-bio-exp').innerHTML = `${formatVal(cMar.expected[1])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-mar-bio-plan').innerText = `${calcRatio(cMar.expected[1], cMar.plan[1])}%`;
+    document.getElementById('sum-mar-bio-yoy').innerText = `${calcYoY(cMar.expected[1], cMar.prev[1])}%`;
+    document.getElementById('sum-mar-total-exp').innerHTML = `${formatVal(cMar.expected[2])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-mar-total-plan').innerText = `${calcRatio(cMar.expected[2], cMar.plan[2])}%`;
+    const totalYoyElement = document.getElementById('sum-mar-total-yoy');
+    if (totalYoyElement) totalYoyElement.innerText = `${calcYoY(cMar.expected[2], cMar.prev[2])}%`;
+
+    document.getElementById('sum-apr-nbt-exp').innerHTML = `${formatVal(cApr.expected[0])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-apr-nbt-plan').innerText = `${calcRatio(cApr.expected[0], cApr.plan[0])}%`;
+    document.getElementById('sum-apr-nbt-yoy').innerText = `${calcYoY(cApr.expected[0], cApr.prev[0])}%`;
+    document.getElementById('sum-apr-bio-exp').innerHTML = `${formatVal(cApr.expected[1])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-apr-bio-plan').innerText = `${calcRatio(cApr.expected[1], cApr.plan[1])}%`;
+    document.getElementById('sum-apr-bio-yoy').innerText = `${calcYoY(cApr.expected[1], cApr.prev[1])}%`;
+    document.getElementById('sum-apr-total-exp').innerHTML = `${formatVal(cApr.expected[2])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-apr-total-plan').innerText = `${calcRatio(cApr.expected[2], cApr.plan[2])}%`;
+    const aprTotalYoyElement = document.getElementById('sum-apr-total-yoy');
+    if (aprTotalYoyElement) aprTotalYoyElement.innerText = `${calcYoY(cApr.expected[2], cApr.prev[2])}%`;
+}
+
+Chart.unregister(ChartDataLabels);
+
+const targetLinePlugin = {
+    id: 'targetLinePlugin',
+    afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((bar, index) => {
+                if (!dataset.targets) return;
+                const plan = dataset.targets.plan[index];
+                const prev = dataset.targets.prev[index];
+
+                ctx.save();
+                if (prev) {
+                    const prevY = chart.scales.y.getPixelForValue(prev);
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#94A3B8'; 
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(bar.x - bar.width / 2 + 2, prevY);
+                    ctx.lineTo(bar.x + bar.width / 2 - 2, prevY);
+                    ctx.stroke();
+                }
+                if (plan) {
+                    const planY = chart.scales.y.getPixelForValue(plan);
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#E11D48'; 
+                    ctx.lineWidth = 2.5;
+                    ctx.setLineDash([]);
+                    ctx.moveTo(bar.x - bar.width / 2 - 4, planY);
+                    ctx.lineTo(bar.x + bar.width / 2 + 4, planY);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            });
+        });
+    }
+};
+
+const dynamicFormatter = function(value, context) {
+    const i = context.dataIndex;
+    const monthState = context.datasetIndex === 0 ? appState.mar : appState.apr;
+    const p = calcRatio(value, monthState.plan[i]);
+    const y = calcYoY(value, monthState.prev[i]);
+    
+    let signal = '⚪'; 
+    if (p !== '-') {
+        const planVal = parseFloat(p);
+        if (planVal >= 100) signal = '🟢';
+        else if (planVal >= 90) signal = '🟡';
+        else signal = '🔴';
+    }
+
+    if (appState.subs[i] === 'BIO 상해' && context.datasetIndex === 1 && p === '-' && y === '-') {
+        return `${signal}\n${formatChartVal(value)}억\n(계획 -)\n(전년 -)`;
+    }
+    return `${signal}\n${formatChartVal(value)}억\n🎯 ${p}%\n📈 ${y}%`;
+};
+
+function initSummaryCharts() {
+    const { m1, m2 } = appState.period;
+    const lblM1 = `${m1}월 예상`;
+    const lblM2 = `${m2}월 예상`;
+
+    const ctxGroup = document.getElementById('groupTrendChart');
+    if (ctxGroup) {
+        chartGroupTrend = new Chart(ctxGroup, {
+            type: 'bar',
+            plugins: [ChartDataLabels, targetLinePlugin],
+            data: {
+                labels: appState.subs,
+                datasets: [
+                    {
+                        label: lblM1, data: [...appState.mar.expected],
+                        targets: { plan: [...appState.mar.plan], prev: [...appState.mar.prev] },
+                        backgroundColor: appState.colorsMar, borderRadius: 6, barPercentage: 0.85,
+                        datalabels: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: (c) => c.dataset.backgroundColor[c.dataIndex], borderWidth: 2, borderRadius: 8, color: '#1E293B',
+                            font: { size: 10, weight: 'bold', family: 'Pretendard', lineHeight: 1.4 }, padding: { top: 4, bottom: 4, left: 6, right: 6 }, textAlign: 'center', anchor: 'end', align: 'top', offset: 8,
+                            formatter: dynamicFormatter
+                        }
+                    },
+                    {
+                        label: lblM2, data: [...appState.apr.expected],
+                        targets: { plan: [...appState.apr.plan], prev: [...appState.apr.prev] },
+                        backgroundColor: appState.colorsApr, borderRadius: 6, barPercentage: 0.85,
+                        datalabels: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: (c) => c.dataset.backgroundColor[c.dataIndex], borderWidth: 2, borderRadius: 8, color: '#1E293B',
+                            font: { size: 10, weight: 'bold', family: 'Pretendard', lineHeight: 1.4 }, padding: { top: 4, bottom: 4, left: 6, right: 6 }, textAlign: 'center', anchor: 'end', align: 'top', offset: 8,
+                            formatter: dynamicFormatter
+                        }
+                    }
+                ]
+            },
+            options: { maintainAspectRatio: false, responsive: true, layout: { padding: { top: 40 } }, plugins: { tooltip: { callbacks: { title: function(t) { return Array.isArray(t[0].label) ? t[0].label.join(' ') : t[0].label; } } }, legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 13, weight: 'bold' }, padding: 20 } } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 12, weight: 'bold' } } }, y: { title: { display: true, text: '매출 (억원)' }, suggestedMax: Math.max(...appState.apr.expected, ...appState.mar.expected) * 1.3 } } }
+        });
+    }
+}
+
+function initMonthlyTrendCharts() {
+    const wrapper = document.getElementById('trend-charts-wrapper');
+    if (!wrapper) return;
+    wrapper.innerHTML = '';
+    trendChartInstances = [];
+
+    appState.trends.forEach((entity, idx) => {
+        const container = document.createElement('div');
+        container.className = 'glass-card flex flex-col justify-between hover:shadow-xl transition-shadow duration-300';
+        
+        let themeColor = '#6200EA'; 
+        let themeGradient = ['rgba(98, 0, 234, 0.25)', 'rgba(98, 0, 234, 0)'];
+        let borderCol = 'border-[#6200EA]';
+
+        if(entity.name.includes('BIO') || entity.name.includes('여행') || entity.name.includes('펫')) {
+            themeColor = '#00B8D4';
+            themeGradient = ['rgba(0, 184, 212, 0.25)', 'rgba(0, 184, 212, 0)'];
+            borderCol = 'border-[#00B8D4]';
+        } else if(entity.name.includes('파마')) {
+            themeColor = '#FF6D00';
+            themeGradient = ['rgba(255, 109, 0, 0.25)', 'rgba(255, 109, 0, 0)'];
+            borderCol = 'border-[#FF6D00]';
+        }
+
+        container.innerHTML = `
+            <div class="flex items-center justify-between border-b-2 ${borderCol} pb-2 mb-4">
+                <h4 class="font-extrabold text-lg text-gray-800">${entity.name}</h4>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-md bg-gray-100 text-gray-500 uppercase tracking-wider">12M Trend</span>
+            </div>
+            <div class="trend-chart-container" style="height: 250px;">
+                <canvas id="trendChart12M-${idx}"></canvas>
+            </div>
+        `;
+        wrapper.appendChild(container);
+
+        const customLabels = generateTrendLabels();
+
+        const ctx = document.getElementById(`trendChart12M-${idx}`);
+        if (ctx) {
+            const chart = new Chart(ctx, {
+                type: 'line',
+                plugins: [ChartDataLabels],
+                data: {
+                    labels: customLabels,
+                    datasets: [
+                        {
+                            label: '전년실적', 
+                            data: [...entity.prev], 
+                            borderColor: '#E2E8F0', 
+                            backgroundColor: 'transparent',
+                            borderWidth: 2, 
+                            tension: 0.3,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            datalabels: { 
+                                color: '#9CA3AF',
+                                font: { size: 10, weight: '500', family: 'Pretendard' },
+                                align: function(ctx) {
+                                    const i = ctx.dataIndex;
+                                    const prv = ctx.dataset.data[i];
+                                    const pln = ctx.chart.data.datasets[1].data[i];
+                                    const act = ctx.chart.data.datasets[2].data[i] || prv;
+                                    return (prv >= pln && prv >= act) ? 'top' : 'bottom';
+                                },
+                                offset: function(ctx) {
+                                    const i = ctx.dataIndex;
+                                    const prv = ctx.dataset.data[i];
+                                    const pln = ctx.chart.data.datasets[1].data[i];
+                                    const act = ctx.chart.data.datasets[2].data[i] || Infinity;
+                                    if (Math.abs(prv - pln) < Math.max(pln * 0.1, 10) || Math.abs(prv - act) < Math.max(act * 0.1, 10)) return 18;
+                                    return 4;
+                                },
+                                display: function(context) { return context.dataset.data[context.dataIndex] !== null && context.dataset.data[context.dataIndex] !== undefined; },
+                                formatter: function(v) { return formatChartVal(v); }
+                            }
+                        },
+                        {
+                            label: '사업계획', 
+                            data: [...entity.plan], 
+                            borderColor: '#94A3B8', 
+                            backgroundColor: 'transparent',
+                            borderWidth: 2, 
+                            borderDash: [5, 5],
+                            tension: 0.3,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            datalabels: { 
+                                color: '#64748B',
+                                font: { size: 10, weight: '600', family: 'Pretendard' },
+                                align: function(ctx) {
+                                    const i = ctx.dataIndex;
+                                    const pln = ctx.dataset.data[i];
+                                    const act = ctx.chart.data.datasets[2].data[i] || 0;
+                                    return pln > act ? 'top' : 'bottom';
+                                },
+                                offset: 5,
+                                display: function(context) { return context.dataset.data[context.dataIndex] !== null && context.dataset.data[context.dataIndex] !== undefined; },
+                                formatter: function(v) { return formatChartVal(v); }
+                            }
+                        },
+                        {
+                            label: '실적', 
+                            data: [...entity.actual], 
+                            borderColor: themeColor, 
+                            backgroundColor: function(context) {
+                                const chart = context.chart;
+                                const {ctx, chartArea} = chart;
+                                if (!chartArea) return;
+                                let gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                gradient.addColorStop(0, themeGradient[0]);
+                                gradient.addColorStop(1, themeGradient[1]);
+                                return gradient;
+                            },
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#FFFFFF',
+                            pointBorderColor: themeColor,
+                            pointBorderWidth: 2,
+                            pointRadius: 4, 
+                            pointHoverRadius: 6,
+                            datalabels: {
+                                color: themeColor, 
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                                borderRadius: 4, 
+                                font: { weight: '900', size: 10, family: 'Pretendard' },
+                                padding: {top:3, bottom:3, left:5, right:5}, 
+                                align: function(ctx) {
+                                    const i = ctx.dataIndex;
+                                    const act = ctx.dataset.data[i];
+                                    const pln = ctx.chart.data.datasets[1].data[i];
+                                    return act >= pln ? 'top' : 'bottom';
+                                }, 
+                                offset: 6,
+                                textAlign: 'center',
+                                display: function(context) { return context.dataset.data[context.dataIndex] !== null && context.dataset.data[context.dataIndex] !== undefined; },
+                                formatter: function(v) { return formatChartVal(v); }
+                            }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { top: 50, left: 10, right: 10, bottom: 25 } },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)', titleColor: '#1E293B', bodyColor: '#334155', borderColor: '#E2E8F0', borderWidth: 1, padding: 10, boxPadding: 4, usePointStyle: true,
+                            callbacks: { label: function(context) { return context.dataset.label + ': ' + formatChartVal(context.parsed.y) + '억'; } }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 11, weight: '500' }, color: '#94A3B8' } },
+                        y: { display: true, position: 'right', grid: { color: '#F1F5F9', borderDash: [4, 4] }, border: { display: false }, ticks: { font: { size: 10 }, color: '#CBD5E1', maxTicksLimit: 5 }, beginAtZero: false }
+                    }
+                }
+            });
+            trendChartInstances.push(chart);
+        }
+    });
+}
+
+function renderDetailedTable() {
+    const tbody = document.getElementById('detailedTableBody');
+    if(!tbody) return;
+    let html = '';
+
+    const fmtPct = (val, base) => {
+        if (!base || base === 0 || val === null || val === undefined || isNaN(val) || isNaN(base)) return '-';
+        const pct = Math.round((val / base) * 100);
+        const colorCls = pct <= 90 ? 'text-rose-500 font-bold' : 'text-indigo-600 font-bold';
+        return `<span class="${colorCls}">${pct}%</span>`;
+    };
+
+    const fmtYoY = (val, prev) => {
+        if (!prev || prev === 0 || val === null || val === undefined || isNaN(val) || isNaN(prev)) return '-';
+        const pct = Math.round(((val - prev) / Math.abs(prev)) * 100);
+        const colorCls = pct < 0 ? 'text-rose-500 font-bold' : 'text-indigo-600 font-bold';
+        const sign = pct > 0 ? '+' : '';
+        return `<span class="${colorCls}">${sign}${pct}%</span>`;
+    };
+
+    appState.detailedTable.forEach(row => {
+        let mar_p, mar_pl, mar_e, apr_p, apr_pl, apr_e;
+
+        if (row.type === 'conn') {
+            mar_p = appState.conn.mar.prev[row.stateIdx];
+            mar_pl = appState.conn.mar.plan[row.stateIdx];
+            mar_e = appState.conn.mar.expected[row.stateIdx];
+            apr_p = appState.conn.apr.prev[row.stateIdx];
+            apr_pl = appState.conn.apr.plan[row.stateIdx];
+            apr_e = appState.conn.apr.expected[row.stateIdx];
+        } else if (row.type === 'sub') {
+            mar_p = appState.mar.prev[row.stateIdx];
+            mar_pl = appState.mar.plan[row.stateIdx];
+            mar_e = appState.mar.expected[row.stateIdx];
+            apr_p = appState.apr.prev[row.stateIdx];
+            apr_pl = appState.apr.plan[row.stateIdx];
+            apr_e = appState.apr.expected[row.stateIdx];
+        } else if (row.type === 'static') {
+            mar_p = row.mar_prev; mar_pl = row.mar_plan; mar_e = row.mar_exp;
+            apr_p = row.apr_prev; apr_pl = row.apr_plan; apr_e = row.apr_exp;
+        } else if (row.type === 'grand_total') {
+            mar_p = appState.conn.mar.prev[2] + appState.mar.prev[8];
+            mar_pl = appState.conn.mar.plan[2] + appState.mar.plan[8];
+            mar_e = appState.conn.mar.expected[2] + appState.mar.expected[8];
+            apr_p = appState.conn.apr.prev[2] + appState.apr.prev[8];
+            apr_pl = appState.conn.apr.plan[2] + appState.apr.plan[8];
+            apr_e = appState.conn.apr.expected[2] + appState.apr.expected[8];
+
+            mar_p = parseFloat(mar_p.toFixed(2));
+            mar_pl = parseFloat(mar_pl.toFixed(2));
+            mar_e = parseFloat(mar_e.toFixed(2));
+            apr_p = parseFloat(apr_p.toFixed(2));
+            apr_pl = parseFloat(apr_pl.toFixed(2));
+            apr_e = parseFloat(apr_e.toFixed(2));
+        }
+
+        let ytd_e = parseFloat((row.m1 + row.m2 + mar_e + apr_e).toFixed(2));
+
+        let tdBorder = 'border border-slate-200';
+        if (row.indent) tdBorder = 'border-x border-slate-200 border-y-0';
+
+        let trClass = 'hover:bg-slate-50 transition-colors text-slate-700';
+        let basePadding = 'py-1 px-2'; 
+        let nameClass = `${basePadding} text-left sticky-col shadow-[1px_0_0_#E2E8F0] ${tdBorder}`;
+        
+        if (row.isTotal) {
+            basePadding = 'py-1.5 px-2';
+            trClass = 'bg-slate-200/60 font-extrabold text-slate-900';
+            nameClass = `${basePadding} text-left sticky-col bg-slate-200 shadow-[1px_0_0_#CBD5E1] ${tdBorder} font-extrabold text-slate-900`;
+        } else if (row.type === 'conn') {
+            if (row.name.includes('NBT')) {
+                trClass = 'bg-indigo-50/60 font-extrabold text-indigo-900';
+                nameClass = `${basePadding} text-left sticky-col bg-indigo-50 shadow-[1px_0_0_#C7D2FE] ${tdBorder} font-extrabold text-indigo-900`;
+            } else if (row.name.includes('BIO')) {
+                trClass = 'bg-sky-50/60 font-extrabold text-sky-900';
+                nameClass = `${basePadding} text-left sticky-col bg-sky-50 shadow-[1px_0_0_#BAE6FD] ${tdBorder} font-extrabold text-sky-900`;
+            } else {
+                trClass = 'bg-slate-100/60 font-extrabold text-slate-900';
+                nameClass = `${basePadding} text-left sticky-col bg-slate-100 shadow-[1px_0_0_#CBD5E1] ${tdBorder} font-extrabold text-slate-900`;
+            }
+        } else if (row.type === 'sub') {
+            trClass = 'bg-white font-bold text-slate-800';
+            let indentClass = row.name === '파마' ? 'pl-3' : 'pl-5 relative before:content-["└"] before:absolute before:left-1.5 before:text-slate-300';
+            nameClass = `${basePadding} text-left sticky-col bg-white shadow-[1px_0_0_#E2E8F0] ${tdBorder} ${indentClass}`;
+        } else if (row.indent) {
+            basePadding = 'py-0.5 px-2';
+            trClass = 'bg-white hover:bg-slate-50/50 transition-colors font-medium text-slate-600 text-[11px]';
+            nameClass = `${basePadding} text-left sticky-col bg-white shadow-[1px_0_0_#E2E8F0] ${tdBorder} pl-8 relative before:content-["└"] before:absolute before:left-4 before:text-slate-200`;
+        }
+
+        const tdClassStr = `${basePadding} text-right ${tdBorder}`;
+        const marExpClass = `${tdClassStr} font-bold text-indigo-700 bg-indigo-50/30`;
+        const aprExpClass = `${tdClassStr} font-bold text-cyan-700 bg-cyan-50/30`;
+        const ytdExpClass = `${tdClassStr} font-bold text-emerald-700 bg-emerald-50/30`;
+
+        html += `
+            <tr class="${trClass}">
+                <td class="${nameClass}">${row.name}</td>
+                <td class="${tdClassStr}">${formatVal(row.m1)}</td>
+                <td class="${tdClassStr}">${formatVal(row.m2)}</td>
+
+                <td class="${tdClassStr} text-slate-400">${formatVal(mar_p)}</td>
+                <td class="${tdClassStr} text-slate-500">${formatVal(mar_pl)}</td>
+                <td class="${marExpClass}">${formatVal(mar_e)}</td>
+                <td class="${tdClassStr}">${fmtPct(mar_e, mar_pl)}</td>
+                <td class="${tdClassStr}">${fmtYoY(mar_e, mar_p)}</td>
+
+                <td class="${tdClassStr} text-slate-400">${formatVal(apr_p)}</td>
+                <td class="${tdClassStr} text-slate-500">${formatVal(apr_pl)}</td>
+                <td class="${aprExpClass}">${formatVal(apr_e)}</td>
+                <td class="${tdClassStr}">${fmtPct(apr_e, apr_pl)}</td>
+                <td class="${tdClassStr}">${fmtYoY(apr_e, apr_p)}</td>
+
+                <td class="${tdClassStr} text-slate-400">${formatVal(row.ytd_prev)}</td>
+                <td class="${tdClassStr} text-slate-500">${formatVal(row.ytd_plan)}</td>
+                <td class="${ytdExpClass}">${formatVal(ytd_e)}</td>
+                <td class="${tdClassStr}">${fmtPct(ytd_e, row.ytd_plan)}</td>
+                <td class="${tdClassStr}">${fmtYoY(ytd_e, row.ytd_prev)}</td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+function openDataEditor() {
+    document.getElementById('edit-year').value = appState.period.year;
+    document.getElementById('edit-m1').value = appState.period.m1;
+    document.getElementById('edit-m2').value = appState.period.m2;
+
+    renderSummaryEditorTable();
+
+    const select = document.getElementById('trendEntitySelector');
+    select.innerHTML = '';
+    appState.trends.forEach((t, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.text = t.name;
+        select.appendChild(opt);
+    });
+    currentTrendEntityIndex = 0;
+    renderTrendEditorTable();
+    renderTableEditorAll();
+
+    switchEditorTab('summary');
+
+    const modal = document.getElementById('dataEditorModal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.children[0].classList.remove('scale-95');
+        modal.children[0].classList.add('scale-100');
+    }, 10);
+}
+
+function closeDataEditor() {
+    const modal = document.getElementById('dataEditorModal');
+    modal.classList.add('opacity-0');
+    modal.children[0].classList.remove('scale-100');
+    modal.children[0].classList.add('scale-95');
+    setTimeout(() => { modal.classList.add('hidden'); }, 300);
+}
+
+function switchEditorTab(tab) {
+    if (currentActiveTab === 'summary') saveSummaryEditorState();
+    else if (currentActiveTab === 'trends') saveCurrentTrendTableState();
+    else if (currentActiveTab === 'table') saveTableEditorState();
+
+    currentActiveTab = tab;
+
+    ['editorViewSummary', 'editorViewTrends', 'editorViewTable', 'editorViewUpload'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    ['tabBtnSummary', 'tabBtnTrends', 'tabBtnTable', 'tabBtnUpload'].forEach(id => {
+        document.getElementById(id).classList.remove('active', 'text-[#6200EA]', 'text-[#00E5FF]');
+        document.getElementById(id).classList.add('text-gray-600');
+    });
+
+    if(tab === 'summary') {
+        document.getElementById('editorViewSummary').classList.remove('hidden');
+        document.getElementById('tabBtnSummary').classList.add('active', 'text-[#6200EA]');
+        document.getElementById('tabBtnSummary').classList.remove('text-gray-600');
+        renderSummaryEditorTable();
+    } else if(tab === 'trends') {
+        document.getElementById('editorViewTrends').classList.remove('hidden');
+        document.getElementById('tabBtnTrends').classList.add('active', 'text-[#6200EA]');
+        document.getElementById('tabBtnTrends').classList.remove('text-gray-600');
+        renderTrendEditorTable();
+    } else if(tab === 'table') {
+        document.getElementById('editorViewTable').classList.remove('hidden');
+        document.getElementById('tabBtnTable').classList.add('active', 'text-[#6200EA]');
+        document.getElementById('tabBtnTable').classList.remove('text-gray-600');
+        renderTableEditorAll();
+    } else if(tab === 'upload') {
+        document.getElementById('editorViewUpload').classList.remove('hidden');
+        document.getElementById('tabBtnUpload').classList.add('active', 'text-[#00E5FF]');
+        document.getElementById('tabBtnUpload').classList.remove('text-gray-600');
+    }
+}
+
+function renderSummaryEditorTable() {
+    const tbody = document.getElementById('editorTableBody');
+    let html = '';
+    
+    html += `<tr><td colspan="7" class="bg-gray-200 py-1.5 text-xs font-extrabold text-gray-700 tracking-wider">연결 및 합산 수치 (Summary Cards)</td></tr>`;
+    appState.conn.subs.forEach((sub, i) => {
+        const ro = i === 2 ? 'disabled' : '';
+        const bg = i === 2 ? 'bg-gray-100' : 'bg-white';
+        html += `
+            <tr class="hover:bg-amber-50/50 transition-colors bg-amber-50/20">
+                <td class="px-4 py-2 font-extrabold text-amber-900 border border-gray-300 text-left">⭐ ${sub}</td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-mar-exp-${i}" value="${appState.conn.mar.expected[i]}" ${ro} class="w-16 p-1.5 border border-amber-300 ${bg} rounded text-center font-bold focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-mar-plan-${i}" value="${appState.conn.mar.plan[i]}" ${ro} class="w-16 p-1.5 border border-amber-300 ${bg} rounded text-center focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-mar-prev-${i}" value="${appState.conn.mar.prev[i]}" ${ro} class="w-16 p-1.5 border border-amber-300 ${bg} rounded text-center text-gray-500 focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-apr-exp-${i}" value="${appState.conn.apr.expected[i]}" ${ro} class="w-16 p-1.5 border border-amber-300 ${bg} rounded text-center font-bold focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-apr-plan-${i}" value="${appState.conn.apr.plan[i]}" ${ro} class="w-16 p-1.5 border border-amber-300 ${bg} rounded text-center focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-apr-prev-${i}" value="${appState.conn.apr.prev[i]}" ${ro} class="w-16 p-1.5 border border-amber-300 ${bg} rounded text-center text-gray-500 focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+            </tr>
+        `;
+    });
+
+    html += `<tr><td colspan="7" class="bg-gray-200 py-1.5 text-xs font-extrabold text-gray-700 tracking-wider">개별 법인 수치 (Chart Data)</td></tr>`;
+    appState.subs.forEach((sub, i) => {
+        html += `
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-4 py-2 font-bold text-gray-800 border border-gray-300 text-left">${sub}</td>
+                <td class="px-2 py-2 border border-gray-300 bg-indigo-50/20"><input type="number" step="0.01" id="e-mar-exp-${i}" value="${appState.mar.expected[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-indigo-50/20"><input type="number" step="0.01" id="e-mar-plan-${i}" value="${appState.mar.plan[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-indigo-50/20"><input type="number" step="0.01" id="e-mar-prev-${i}" value="${appState.mar.prev[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center text-gray-500 focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-cyan-50/20"><input type="number" step="0.01" id="e-apr-exp-${i}" value="${appState.apr.expected[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-cyan-50/20"><input type="number" step="0.01" id="e-apr-plan-${i}" value="${appState.apr.plan[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-cyan-50/20"><input type="number" step="0.01" id="e-apr-prev-${i}" value="${appState.apr.prev[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center text-gray-500 focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+function saveSummaryEditorState() {
+    const view = document.getElementById('editorViewSummary');
+    if (!view || view.classList.contains('hidden')) return;
+
+    for (let i = 0; i < appState.conn.subs.length; i++) {
+        if (i === 2) continue; 
+        const elExp = document.getElementById(`e-conn-mar-exp-${i}`);
+        if(elExp) {
+            appState.conn.mar.expected[i] = Number(elExp.value);
+            appState.conn.mar.plan[i] = Number(document.getElementById(`e-conn-mar-plan-${i}`).value);
+            appState.conn.mar.prev[i] = Number(document.getElementById(`e-conn-mar-prev-${i}`).value);
+            appState.conn.apr.expected[i] = Number(document.getElementById(`e-conn-apr-exp-${i}`).value);
+            appState.conn.apr.plan[i] = Number(document.getElementById(`e-conn-apr-plan-${i}`).value);
+            appState.conn.apr.prev[i] = Number(document.getElementById(`e-conn-apr-prev-${i}`).value);
+        }
+    }
+    for (let i = 0; i < appState.subs.length; i++) {
+        const elExp = document.getElementById(`e-mar-exp-${i}`);
+        if(elExp) {
+            appState.mar.expected[i] = Number(elExp.value);
+            appState.mar.plan[i] = Number(document.getElementById(`e-mar-plan-${i}`).value);
+            appState.mar.prev[i] = Number(document.getElementById(`e-mar-prev-${i}`).value);
+            appState.apr.expected[i] = Number(document.getElementById(`e-apr-exp-${i}`).value);
+            appState.apr.plan[i] = Number(document.getElementById(`e-apr-plan-${i}`).value);
+            appState.apr.prev[i] = Number(document.getElementById(`e-apr-prev-${i}`).value);
+        }
+    }
+}
+
+function changeTrendEntity() {
+    saveCurrentTrendTableState();
+    currentTrendEntityIndex = document.getElementById('trendEntitySelector').value;
+    renderTrendEditorTable();
+}
+
+function renderTrendEditorTable() {
+    const tbody = document.getElementById('trendEditorTableBody');
+    const entity = appState.trends[currentTrendEntityIndex];
+    let html = '';
+    
+    for (let m = 0; m < 12; m++) {
+        const actVal = (entity.actual[m] !== null && entity.actual[m] !== undefined) ? entity.actual[m] : '';
+        const plnVal = (entity.plan[m] !== null && entity.plan[m] !== undefined) ? entity.plan[m] : '';
+        const prvVal = (entity.prev[m] !== null && entity.prev[m] !== undefined) ? entity.prev[m] : '';
+
+        html += `
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-4 py-2 font-bold text-gray-800 border border-gray-300">${m + 1}월</td>
+                <td class="px-2 py-2 border border-gray-300 bg-indigo-50/20 text-[#6200EA]">
+                    <input type="number" step="0.01" id="t-act-${m}" value="${actVal}" placeholder="-" class="w-20 p-1.5 border border-gray-300 rounded text-center font-bold text-[#6200EA] focus:ring-2 focus:ring-[#6200EA] outline-none">
+                </td>
+                <td class="px-2 py-2 border border-gray-300 bg-gray-50/20 text-gray-700">
+                    <input type="number" step="0.01" id="t-pln-${m}" value="${plnVal}" placeholder="-" class="w-20 p-1.5 border border-gray-300 rounded text-center text-gray-700 focus:ring-2 focus:ring-gray-400 outline-none">
+                </td>
+                <td class="px-2 py-2 border border-gray-300 bg-gray-50/20 text-gray-500">
+                    <input type="number" step="0.01" id="t-prv-${m}" value="${prvVal}" placeholder="-" class="w-20 p-1.5 border border-gray-300 rounded text-center text-gray-500 focus:ring-2 focus:ring-gray-400 outline-none">
+                </td>
+            </tr>
+        `;
+    }
+    tbody.innerHTML = html;
+}
+
+function saveCurrentTrendTableState() {
+    const view = document.getElementById('editorViewTrends');
+    if (!view || view.classList.contains('hidden')) return; 
+    
+    const entity = appState.trends[currentTrendEntityIndex];
+    for (let m = 0; m < 12; m++) {
+        const aInput = document.getElementById(`t-act-${m}`);
+        const pInput = document.getElementById(`t-pln-${m}`);
+        const rInput = document.getElementById(`t-prv-${m}`);
+        if(aInput) entity.actual[m] = aInput.value === '' ? null : Number(aInput.value);
+        if(pInput) entity.plan[m] = pInput.value === '' ? null : Number(pInput.value);
+        if(rInput) entity.prev[m] = rInput.value === '' ? null : Number(rInput.value);
+    }
+}
+
+function renderTableEditorAll() {
+    const tbody = document.getElementById('editorTableBodyAll');
+    let html = '';
+    
+    appState.detailedTable.forEach((row, i) => {
+        const isCalc = row.type === 'grand_total' || row.isTotal;
+        let mar_p = '', mar_pl = '', mar_e = '', apr_p = '', apr_pl = '', apr_e = '';
+
+        if (row.type === 'conn') {
+            mar_p = appState.conn.mar.prev[row.stateIdx]; mar_pl = appState.conn.mar.plan[row.stateIdx]; mar_e = appState.conn.mar.expected[row.stateIdx];
+            apr_p = appState.conn.apr.prev[row.stateIdx]; apr_pl = appState.conn.apr.plan[row.stateIdx]; apr_e = appState.conn.apr.expected[row.stateIdx];
+        } else if (row.type === 'sub') {
+            mar_p = appState.mar.prev[row.stateIdx]; mar_pl = appState.mar.plan[row.stateIdx]; mar_e = appState.mar.expected[row.stateIdx];
+            apr_p = appState.apr.prev[row.stateIdx]; apr_pl = appState.apr.plan[row.stateIdx]; apr_e = appState.apr.expected[row.stateIdx];
+        } else if (row.type === 'static') {
+            mar_p = row.mar_prev; mar_pl = row.mar_plan; mar_e = row.mar_exp;
+            apr_p = row.apr_prev; apr_pl = row.apr_plan; apr_e = row.apr_exp;
+        }
+
+        const m1 = row.m1; 
+        const m2 = row.m2; 
+        const ytd_p = row.ytd_prev; 
+        const ytd_pl = row.ytd_plan;
+
+        const inp = (id, val, readonly=false, bold=false, color='') => 
+            `<input type="number" step="0.01" id="e-tbl-${i}-${id}" value="${val}" ${readonly ? 'disabled ' : ''} class="editor-input ${readonly ? 'bg-gray-100' : 'bg-white'} ${bold ? 'font-bold' : ''} ${color}">`;
+
+        let trClass = 'hover:bg-gray-50';
+        let nameClass = 'text-left font-bold text-gray-800';
+        if (row.isTotal) { trClass = 'bg-gray-100/80'; nameClass = 'text-left font-extrabold text-gray-900'; }
+        if (row.indent) { nameClass = 'text-left pl-6 text-gray-500 relative before:content-["└"] before:absolute before:left-2'; }
+
+        html += `
+            <tr class="${trClass}">
+                <td class="px-2 py-1.5 border border-gray-300 ${nameClass}">${row.name}</td>
+                <td class="px-1 border border-gray-300">${inp('m1', m1, isCalc)}</td>
+                <td class="px-1 border border-gray-300">${inp('m2', m2, isCalc)}</td>
+                <td class="px-1 border border-gray-300">${isCalc ? '-' : inp('mar_p', mar_p)}</td>
+                <td class="px-1 border border-gray-300">${isCalc ? '-' : inp('mar_pl', mar_pl)}</td>
+                <td class="px-1 border border-gray-300 bg-indigo-50/30">${isCalc ? '-' : inp('mar_e', mar_e, false, true, 'text-indigo-700')}</td>
+                <td class="px-1 border border-gray-300">${isCalc ? '-' : inp('apr_p', apr_p)}</td>
+                <td class="px-1 border border-gray-300">${isCalc ? '-' : inp('apr_pl', apr_pl)}</td>
+                <td class="px-1 border border-gray-300 bg-cyan-50/30">${isCalc ? '-' : inp('apr_e', apr_e, false, true, 'text-cyan-700')}</td>
+                <td class="px-1 border border-gray-300">${inp('ytd_p', ytd_p, isCalc)}</td>
+                <td class="px-1 border border-gray-300">${inp('ytd_pl', ytd_pl, isCalc)}</td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+function saveTableEditorState() {
+    const view = document.getElementById('editorViewTable');
+    if (!view || view.classList.contains('hidden')) return;
+
+    appState.detailedTable.forEach((row, i) => {
+        const m1 = document.getElementById(`e-tbl-${i}-m1`);
+        if(m1) row.m1 = Number(m1.value);
+        const m2 = document.getElementById(`e-tbl-${i}-m2`);
+        if(m2) row.m2 = Number(m2.value);
+        const ytd_p = document.getElementById(`e-tbl-${i}-ytd_p`);
+        if(ytd_p) row.ytd_prev = Number(ytd_p.value);
+        const ytd_pl = document.getElementById(`e-tbl-${i}-ytd_pl`);
+        if(ytd_pl) row.ytd_plan = Number(ytd_pl.value);
+
+        if (row.type !== 'grand_total' && !row.isTotal) {
+            const mar_p = Number(document.getElementById(`e-tbl-${i}-mar_p`).value);
+            const mar_pl = Number(document.getElementById(`e-tbl-${i}-mar_pl`).value);
+            const mar_e = Number(document.getElementById(`e-tbl-${i}-mar_e`).value);
+            const apr_p = Number(document.getElementById(`e-tbl-${i}-apr_p`).value);
+            const apr_pl = Number(document.getElementById(`e-tbl-${i}-apr_pl`).value);
+            const apr_e = Number(document.getElementById(`e-tbl-${i}-apr_e`).value);
+
+            if (row.type === 'conn') {
+                appState.conn.mar.prev[row.stateIdx] = mar_p; appState.conn.mar.plan[row.stateIdx] = mar_pl; appState.conn.mar.expected[row.stateIdx] = mar_e;
+                appState.conn.apr.prev[row.stateIdx] = apr_p; appState.conn.apr.plan[row.stateIdx] = apr_pl; appState.conn.apr.expected[row.stateIdx] = apr_e;
+            } else if (row.type === 'sub') {
+                appState.mar.prev[row.stateIdx] = mar_p; appState.mar.plan[row.stateIdx] = mar_pl; appState.mar.expected[row.stateIdx] = mar_e;
+                appState.apr.prev[row.stateIdx] = apr_p; appState.apr.plan[row.stateIdx] = apr_pl; appState.apr.expected[row.stateIdx] = apr_e;
+            } else if (row.type === 'static') {
+                row.mar_prev = mar_p; row.mar_plan = mar_pl; row.mar_exp = mar_e;
+                row.apr_prev = apr_p; row.apr_plan = apr_pl; row.apr_exp = apr_e;
+            }
+        }
+    });
+}
+
+// TSV 양식 생성 및 복사
+function copyTemplateToClipboard() {
+    let tsv = "=== [1] 상세 실적 종합표 전체 데이터 ===\n";
+    tsv += "인덱스\t항목명\t1월실적\t2월실적\t3월전년\t3월계획\t3월예상\t4월전년\t4월계획\t4월예상\tYTD전년\tYTD계획\n";
+    appState.detailedTable.forEach((r, i) => {
+        if(r.type === 'grand_total' || r.isTotal) return; 
+        let m_p='', m_pl='', m_e='', a_p='', a_pl='', a_e='';
+        if (r.type === 'conn') {
+            m_p = appState.conn.mar.prev[r.stateIdx]; m_pl = appState.conn.mar.plan[r.stateIdx]; m_e = appState.conn.mar.expected[r.stateIdx];
+            a_p = appState.conn.apr.prev[r.stateIdx]; a_pl = appState.conn.apr.plan[r.stateIdx]; a_e = appState.conn.apr.expected[r.stateIdx];
+        } else if (r.type === 'sub') {
+            m_p = appState.mar.prev[r.stateIdx]; m_pl = appState.mar.plan[r.stateIdx]; m_e = appState.mar.expected[r.stateIdx];
+            a_p = appState.apr.prev[r.stateIdx]; a_pl = appState.apr.plan[r.stateIdx]; a_e = appState.apr.expected[r.stateIdx];
+        } else if (r.type === 'static') {
+            m_p = r.mar_prev; m_pl = r.mar_plan; m_e = r.mar_exp;
+            a_p = r.apr_prev; a_pl = r.apr_plan; a_e = r.apr_exp;
+        }
+        tsv += `${i}\t${r.name}\t${r.m1}\t${r.m2}\t${m_p}\t${m_pl}\t${m_e}\t${a_p}\t${a_pl}\t${a_e}\t${r.ytd_prev}\t${r.ytd_plan}\n`;
+    });
+
+    tsv += "\n=== [2] 법인별 12개월 추이 (실적) ===\n";
+    tsv += "인덱스\t법인명\t1월\t2월\t3월\t4월\t5월\t6월\t7월\t8월\t9월\t10월\t11월\t12월\n";
+    appState.trends.forEach((t, i) => { tsv += `${i}\t${t.name}\t${t.actual.map(v => v===null?'':v).join('\t')}\n`; });
+
+    tsv += "\n=== [3] 법인별 12개월 추이 (계획) ===\n";
+    tsv += "인덱스\t법인명\t1월\t2월\t3월\t4월\t5월\t6월\t7월\t8월\t9월\t10월\t11월\t12월\n";
+    appState.trends.forEach((t, i) => { tsv += `${i}\t${t.name}\t${t.plan.map(v => v===null?'':v).join('\t')}\n`; });
+
+    tsv += "\n=== [4] 법인별 12개월 추이 (전년) ===\n";
+    tsv += "인덱스\t법인명\t1월\t2월\t3월\t4월\t5월\t6월\t7월\t8월\t9월\t10월\t11월\t12월\n";
+    appState.trends.forEach((t, i) => { tsv += `${i}\t${t.name}\t${t.prev.map(v => v===null?'':v).join('\t')}\n`; });
+
+    const el = document.createElement('textarea');
+    el.value = tsv;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+
+    const btn = document.getElementById('copyBtn');
+    const ogText = btn.innerHTML;
+    btn.innerHTML = '✅ 클립보드 복사 완료!';
+    btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+    setTimeout(() => {
+        btn.innerHTML = ogText;
+        btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
+    }, 2500);
+}
+
+// TSV 데이터 파싱 및 대시보드 반영
+function parseAndApplyTSV() {
+    const text = document.getElementById('tsvInput').value;
+    const btn = document.getElementById('applyBtn');
+
+    if (!text.trim()) {
+        const ogText = btn.innerHTML;
+        btn.innerHTML = '⚠️ 데이터를 붙여넣어주세요';
+        btn.classList.replace('bg-cyan-600', 'bg-red-500');
+        setTimeout(() => { btn.innerHTML = ogText; btn.classList.replace('bg-red-500', 'bg-cyan-600'); }, 2000);
+        return;
+    }
+    
+    let currentMode = 0; 
+    const lines = text.split('\n');
+    const parseNum = (val) => {
+        if (val === undefined || val === null) return null;
+        const s = val.trim().replace(/,/g, '');
+        return (s === '' || s === '-') ? null : Number(s);
+    };
+
+    for(let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+        
+        if (line.includes('=== [1]')) { currentMode = 1; continue; }
+        if (line.includes('=== [2]')) { currentMode = 2; continue; }
+        if (line.includes('=== [3]')) { currentMode = 3; continue; }
+        if (line.includes('=== [4]')) { currentMode = 4; continue; }
+        if (line.startsWith('인덱스')) continue; 
+
+        const cols = line.split('\t');
+        const idx = parseInt(cols[0]);
+        if (isNaN(idx)) continue;
+
+        if (currentMode === 1 && appState.detailedTable[idx]) {
+            const r = appState.detailedTable[idx];
+            r.m1 = parseNum(cols[2]) || 0;
+            r.m2 = parseNum(cols[3]) || 0;
+            const m_p = parseNum(cols[4]) || 0, m_pl = parseNum(cols[5]) || 0, m_e = parseNum(cols[6]) || 0;
+            const a_p = parseNum(cols[7]) || 0, a_pl = parseNum(cols[8]) || 0, a_e = parseNum(cols[9]) || 0;
+            r.ytd_prev = parseNum(cols[10]) || 0;
+            r.ytd_plan = parseNum(cols[11]) || 0;
+
+            if (r.type === 'conn') {
+                appState.conn.mar.prev[r.stateIdx] = m_p; appState.conn.mar.plan[r.stateIdx] = m_pl; appState.conn.mar.expected[r.stateIdx] = m_e;
+                appState.conn.apr.prev[r.stateIdx] = a_p; appState.conn.apr.plan[r.stateIdx] = a_pl; appState.conn.apr.expected[r.stateIdx] = a_e;
+            } else if (r.type === 'sub') {
+                appState.mar.prev[r.stateIdx] = m_p; appState.mar.plan[r.stateIdx] = m_pl; appState.mar.expected[r.stateIdx] = m_e;
+                appState.apr.prev[r.stateIdx] = a_p; appState.apr.plan[r.stateIdx] = a_pl; appState.apr.expected[r.stateIdx] = a_e;
+            } else if (r.type === 'static') {
+                r.mar_prev = m_p; r.mar_plan = m_pl; r.mar_exp = m_e;
+                r.apr_prev = a_p; r.apr_plan = a_pl; r.apr_exp = a_e;
+            }
+        } else if (currentMode >= 2 && currentMode <= 4 && appState.trends[idx]) {
+            const arr = cols.slice(2, 14).map(parseNum);
+            while(arr.length < 12) arr.push(null); 
+            if (currentMode === 2) appState.trends[idx].actual = arr;
+            if (currentMode === 3) appState.trends[idx].plan = arr;
+            if (currentMode === 4) appState.trends[idx].prev = arr;
+        }
+    }
+    
+    saveDataEditor(); 
+
+    btn.innerHTML = '✅ 연동 및 업데이트 성공!';
+    btn.classList.replace('bg-cyan-600', 'bg-emerald-600');
+    setTimeout(() => {
+        btn.innerHTML = '🚀 데이터 파싱 및 대시보드 업데이트';
+        btn.classList.replace('bg-emerald-600', 'bg-cyan-600');
+        document.getElementById('tsvInput').value = '';
+    }, 2000);
+}
+
+function saveDataEditor() {
+    appState.period.year = parseInt(document.getElementById('edit-year').value) || 2026;
+    appState.period.m1 = parseInt(document.getElementById('edit-m1').value) || 3;
+    appState.period.m2 = parseInt(document.getElementById('edit-m2').value) || 4;
+
+    // 현재 열려있는 탭의 상태를 최종 저장
+    if (currentActiveTab === 'summary') saveSummaryEditorState();
+    else if (currentActiveTab === 'trends') saveCurrentTrendTableState();
+    else if (currentActiveTab === 'table') saveTableEditorState();
+
+    // 동적 합산(건기식, 제약 등) 일괄 계산
+    recalculateTotals();
+
+    // 12개월 추이 데이터의 3,4월 값을 요약/상세 테이블에서 수정한 최신값으로 완벽 동기화 매핑
+    appState.trends[0].actual[2] = appState.conn.mar.expected[0]; appState.trends[0].actual[3] = appState.conn.apr.expected[0];
+    appState.trends[5].actual[2] = appState.conn.mar.expected[1]; appState.trends[5].actual[3] = appState.conn.apr.expected[1];
+    
+    appState.trends[1].actual[2] = appState.mar.expected[0]; appState.trends[1].actual[3] = appState.apr.expected[0];
+    appState.trends[2].actual[2] = appState.mar.expected[1]; appState.trends[2].actual[3] = appState.apr.expected[1];
+    appState.trends[3].actual[2] = appState.mar.expected[2]; appState.trends[3].actual[3] = appState.apr.expected[2];
+    appState.trends[4].actual[2] = appState.mar.expected[3]; appState.trends[4].actual[3] = appState.apr.expected[3];
+    appState.trends[6].actual[2] = appState.mar.expected[4]; appState.trends[6].actual[3] = appState.apr.expected[4];
+    appState.trends[7].actual[2] = appState.mar.expected[5]; appState.trends[7].actual[3] = appState.apr.expected[5];
+    appState.trends[8].actual[2] = appState.mar.expected[6]; appState.trends[8].actual[3] = appState.apr.expected[6];
+    appState.trends[9].actual[2] = appState.mar.expected[7]; appState.trends[9].actual[3] = appState.apr.expected[7];
+    appState.trends[10].actual[2] = appState.mar.expected[8]; appState.trends[10].actual[3] = appState.apr.expected[8];
+
+    // 화면 렌더링 업데이트
+    updatePeriodTexts();
+    updateSummaryCards();
+    renderDetailedTable();
+
+    const lblM1 = `${appState.period.m1}월 예상`;
+    const lblM2 = `${appState.period.m2}월 예상`;
+
+    if (chartGroupTrend) {
+        chartGroupTrend.data.datasets[0].label = lblM1;
+        chartGroupTrend.data.datasets[0].data = [...appState.mar.expected];
+        chartGroupTrend.data.datasets[0].targets.plan = [...appState.mar.plan];
+        chartGroupTrend.data.datasets[0].targets.prev = [...appState.mar.prev];
+        chartGroupTrend.data.datasets[1].label = lblM2;
+        chartGroupTrend.data.datasets[1].data = [...appState.apr.expected];
+        chartGroupTrend.data.datasets[1].targets.plan = [...appState.apr.plan];
+        chartGroupTrend.data.datasets[1].targets.prev = [...appState.apr.prev];
+        chartGroupTrend.update();
+    }
+
+    trendChartInstances.forEach((chart, idx) => {
+        const entity = appState.trends[idx];
+        chart.data.labels = generateTrendLabels();
+        chart.data.datasets[0].data = [...entity.prev];
+        chart.data.datasets[1].data = [...entity.plan];
+        chart.data.datasets[2].data = [...entity.actual];
+        chart.update();
+    });
+
+    closeDataEditor();
+}
+
+window.onload = () => {
+    recalculateTotals();
+    updatePeriodTexts();
+    updateSummaryCards();
+    initSummaryCharts();
+    renderDetailedTable();
+    initMonthlyTrendCharts();
+};
+</script>
+</body>
+</html>
