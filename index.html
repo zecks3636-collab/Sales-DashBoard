@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026년 3~4월 그룹 경영 실적 종합 대시보드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: #1E293B; }
+.chart-container { position: relative; width: 100%; max-width: 100%; margin: 0 auto; height: 350px; max-height: 500px; }
+@media (min-width: 768px) { .chart-container { height: 480px; } }
+.trend-chart-container { position: relative; width: 100%; height: 280px; }
+.glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #FFFFFF; border-left: 1px solid #FFFFFF; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); border-radius: 1.5rem; padding: 1.5rem; }
+.accent-gradient { background: linear-gradient(135deg, #6200EA 0%, #00E5FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.bg-accent-gradient { background: linear-gradient(135deg, #6200EA 0%, #00E5FF 100%); }
+.markdown-body h3 { font-size: 1.125rem; font-weight: 800; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #1E293B; }
+.markdown-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; font-size: 0.9rem; color: #334155; }
+.markdown-body li { margin-bottom: 0.25rem; }
+.markdown-body p { margin-bottom: 0.75rem; font-size: 0.9rem; color: #334155; line-height: 1.6; }
+.markdown-body strong { color: #0F172A; font-weight: 700; }
+/* 스크롤바 스타일링 */
+.custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+/* 탭 버튼 스타일 */
+.tab-btn { border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab-btn.active { border-bottom: 2px solid #6200EA; color: #6200EA; font-weight: 800; }
+/* 테이블 Sticky 설정 */
+.sticky-col { position: sticky; left: 0; z-index: 10; box-shadow: 1px 0 0 #E2E8F0; }
+.sticky-col-header { position: sticky; left: 0; z-index: 30; box-shadow: 1px 0 0 #CBD5E1; }
+</style>
+</head>
+<body class="antialiased pb-20">
+
+<header class="bg-white shadow-sm sticky top-0 z-50 mb-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
+<div>
+<h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">경영 대시보드 <span id="header-period-badge" class="accent-gradient">2026.03</span></h1>
+<p id="header-period-text" class="text-sm text-gray-500 mt-1">2026년 3월 가마감 실적 및 4월 예상 매출 종합 보고</p>
+</div>
+<div class="hidden md:flex items-center space-x-3 text-sm font-medium">
+<div class="bg-gray-100 py-2 px-4 rounded-full text-gray-700 flex items-center">
+<span>&#128197;</span> <span class="ml-1">보고일자: 2026-03-25</span>
+</div>
+<button onclick="openDataEditor()" class="bg-white border-2 border-[#6200EA]/30 text-[#6200EA] hover:bg-[#6200EA] hover:text-white transition-colors py-2 px-4 rounded-full flex items-center shadow-sm font-bold">
+⚙️ 데이터 통합 수정
+</button>
+</div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+
+<!-- 모바일 전용 데이터 수정 버튼 -->
+<div class="md:hidden flex justify-end -mt-4 mb-4">
+<button onclick="openDataEditor()" class="bg-white border-2 border-[#6200EA]/30 text-[#6200EA] hover:bg-[#6200EA] hover:text-white transition-colors py-2 px-4 rounded-full flex items-center shadow-sm font-bold text-sm w-full justify-center">
+⚙️ 데이터 통합 수정
+</button>
+</div>
+
+<section id="group-overview">
+<div class="flex justify-end mb-6 gap-4">
+<button id="aiSummaryBtn" onclick="generateExecutiveSummary()" class="flex items-center justify-center gap-2 bg-gradient-to-r from-[#6200EA] to-[#00E5FF] hover:from-[#5000C0] hover:to-[#00C5E0] text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-1">
+✨ AI 최고경영진 종합 분석 리포트
+</button>
+</div>
+
+<div id="aiSummaryResult" class="hidden glass-card bg-white border-2 border-[#6200EA]/20 shadow-xl mb-8 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-[#6200EA] to-[#00E5FF]"></div>
+<h3 class="text-xl font-extrabold text-gray-900 mb-4 flex items-center gap-2"><span>🤖</span> 그룹 최고 전략 책임자(CSO) 종합 의견</h3>
+<div id="aiSummaryContent" class="markdown-body bg-gray-50 p-6 rounded-xl border border-gray-100"></div>
+</div>
+
+<div class="glass-card bg-accent-gradient text-white !border-none mb-8">
+<h3 class="text-xl font-bold mb-6 flex items-center gap-2"><span>&#128161;</span> [건기식부문] <span id="section1-period-title">2026년 3~4월 가마감매출</span></h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-5">
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m1-text">3월</span> NBT 연결</p>
+<p id="sum-mar-nbt-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-mar-nbt-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-mar-nbt-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m1-text">3월</span> BIO 연결</p>
+<p id="sum-mar-bio-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-mar-bio-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-mar-bio-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m1-text">3월</span> 건기식 합산</p>
+<p id="sum-mar-total-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-mar-total-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-mar-total-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m2-text">4월</span> NBT 연결</p>
+<p id="sum-apr-nbt-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-apr-nbt-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-apr-nbt-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m2-text">4월</span> BIO 연결</p>
+<p id="sum-apr-bio-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-apr-bio-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-apr-bio-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+<div class="bg-white/10 rounded-2xl p-5 flex flex-col items-start border border-white/20 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:bg-white/15 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+<p class="text-sm font-medium text-white/80 tracking-wider mb-1"><span class="period-m2-text">4월</span> 건기식 합산</p>
+<p id="sum-apr-total-exp" class="text-3xl font-black mb-5 tracking-tight drop-shadow-sm">-<span class="text-base font-bold ml-1 text-white/70">억</span></p>
+<div class="flex flex-col xl:flex-row gap-2.5 w-full">
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-[#6200EA] w-full"><span class="mr-1 text-[13px]">🎯</span>계획 <span id="sum-apr-total-plan" class="ml-auto xl:ml-2 text-gray-900 font-black text-[14px]">-</span></div>
+<div class="flex items-center bg-white px-3 py-2 rounded-lg shadow-md text-xs font-bold text-gray-500 whitespace-nowrap border-l-4 border-emerald-400 w-full"><span class="mr-1 text-[13px]">📈</span>전년 <span id="sum-apr-total-yoy" class="ml-auto xl:ml-2 text-emerald-600 font-black text-[14px]">-</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="glass-card">
+<h3 class="text-lg font-bold text-gray-800 mb-4">법인별 세부 매출 현황 <span class="text-base font-medium text-gray-500 ml-1">(단위: 억원)</span></h3>
+<!-- 범례와 막대그래프 사이 간격 초밀착 적용 (-mt-2 등) -->
+<div class="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 mb-0 pb-0 relative z-10 text-[12px] font-bold text-gray-700 px-4 py-2 rounded-xl bg-gray-50/80 border border-gray-100 shadow-sm">
+<div class="flex items-center gap-1.5"><span class="block w-5 h-0 border-t-2 border-[#E11D48]"></span> 목표치 (Plan)</div>
+<div class="flex items-center gap-1.5"><span class="block w-5 h-0.5 bg-[#64748B]"></span> 전년 동기 (YoY)</div>
+<div class="flex items-center gap-1.5 ml-2">🟢 <span class="font-medium text-gray-600">달성 (100%↑)</span></div>
+<div class="flex items-center gap-1.5">🟡 <span class="font-medium text-gray-600">주의 (90%대)</span></div>
+<div class="flex items-center gap-1.5">🔴 <span class="font-medium text-gray-600">미달 (90%↓)</span></div>
+</div>
+<div class="chart-container overflow-x-auto -mt-2">
+<div style="min-width: 1000px; height: 100%;">
+<canvas id="groupTrendChart"></canvas>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 행 간격을 약간 여유있게 확대한 세부 실적 표 -->
+<section id="detailed-table-section" class="border-t border-gray-200 pt-8">
+    <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-gray-800">상세 실적 종합표 <span class="text-base font-medium text-gray-500 ml-1">(단위: 억원)</span></h3>
+    </div>
+    <div class="glass-card !p-0 overflow-hidden shadow-sm border border-gray-200">
+        <div class="overflow-x-auto custom-scrollbar pb-2 border-collapse">
+            <table class="w-full text-[12px] text-right whitespace-nowrap border-collapse tracking-tight leading-snug">
+                <thead class="text-slate-700 text-center font-bold sticky top-0 z-20">
+                    <tr class="bg-slate-100">
+                        <th rowspan="2" class="py-1.5 px-2 border border-slate-300 sticky-col-header bg-slate-200 text-center w-28 shadow-[1px_0_0_#CBD5E1]">구분</th>
+                        <th rowspan="2" class="py-1.5 px-2 border border-slate-300 bg-slate-200">1월 실적</th>
+                        <th rowspan="2" class="py-1.5 px-2 border border-slate-300 bg-slate-200">2월 실적</th>
+                        <th colspan="5" class="py-1.5 px-2 border border-slate-300 bg-indigo-100/70 text-indigo-900">3월 (예상)</th>
+                        <th colspan="5" class="py-1.5 px-2 border border-slate-300 bg-cyan-100/70 text-cyan-900 font-extrabold">4월 (예상)</th>
+                        <th colspan="5" class="py-1.5 px-2 border border-slate-300 bg-emerald-100/70 text-emerald-900">4월 누적 (예상)</th>
+                    </tr>
+                    <tr class="text-[11px] bg-slate-50">
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-500 bg-indigo-50/50">전년</th>
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-600 bg-indigo-50/50">계획</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-indigo-700 font-bold bg-indigo-100/50">예상</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-indigo-50/50">계획비</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-indigo-50/50">전년비</th>
+                        
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-500 bg-cyan-50/50">전년</th>
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-600 bg-cyan-50/50">계획</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-cyan-700 font-bold bg-cyan-100/50">예상</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-cyan-50/50">계획비</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-cyan-50/50">전년비</th>
+                        
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-500 bg-emerald-50/50">전년</th>
+                        <th class="py-1 px-1.5 border border-slate-300 font-medium text-slate-600 bg-emerald-50/50">계획</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-emerald-700 font-bold bg-emerald-100/50">예상</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-emerald-50/50">계획비</th>
+                        <th class="py-1 px-1.5 border border-slate-300 text-slate-600 bg-emerald-50/50">전년비</th>
+                    </tr>
+                </thead>
+                <tbody id="detailedTableBody" class="bg-white">
+                    <!-- JS Rendering -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section id="monthly-trends-section" class="border-t border-gray-200 pt-8">
+<div class="mb-4">
+<h3 class="text-lg font-bold text-gray-800">법인별 12개월 매출 추이 현황 <span class="text-base font-medium text-gray-500 ml-1">(단위: 억원)</span></h3>
+<div class="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 mt-2 text-[12px] font-bold text-gray-600">
+    <div class="flex items-center gap-1.5"><span class="w-4 h-1 rounded-full bg-gradient-to-r from-[#6200EA] to-[#00E5FF]"></span> 실적 (법인별 테마컬러)</div>
+    <div class="flex items-center gap-1.5"><span class="w-4 h-0 border-t-2 border-dashed border-[#94A3B8]"></span> 사업계획</div>
+    <div class="flex items-center gap-1.5"><span class="w-4 h-0.5 bg-[#E2E8F0]"></span> 전년실적</div>
+    <div class="flex items-center gap-1.5 border-l border-gray-300 pl-4 ml-1">🟢 <span>달성(100%↑)</span></div>
+    <div class="flex items-center gap-1.5">🟡 <span>주의(90%대)</span></div>
+    <div class="flex items-center gap-1.5">🔴 <span>미달(90%↓)</span></div>
+</div>
+</div>
+<div id="trend-charts-wrapper" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <!-- JS에서 에어리어 라인 차트 컨테이너들이 동적 생성됩니다. -->
+</div>
+</section>
+
+</main>
+
+<!-- Data Editor Modal -->
+<div id="dataEditorModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center transition-opacity opacity-0 duration-300">
+    <div class="bg-white rounded-2xl w-[95%] max-w-[1200px] max-h-[90vh] flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <h3 class="text-xl font-bold text-gray-800">⚙️ 데이터 수치 통합 편집</h3>
+            <button onclick="closeDataEditor()" class="text-gray-400 hover:text-gray-800 text-3xl leading-none">&times;</button>
+        </div>
+        
+        <!-- 탭 메뉴 -->
+        <div class="flex border-b border-gray-200 px-6 pt-2 bg-gray-50">
+            <button onclick="switchEditorTab('summary')" id="tabBtnSummary" class="tab-btn active px-4 py-2.5 text-gray-600 font-semibold mr-2 focus:outline-none">가마감 및 예상 (2개월)</button>
+            <button onclick="switchEditorTab('trends')" id="tabBtnTrends" class="tab-btn px-4 py-2.5 text-gray-600 font-semibold focus:outline-none">월별 추이 (1~12월)</button>
+        </div>
+
+        <!-- 요약(2개월) 에디터 뷰 -->
+        <div id="editorViewSummary" class="flex-1 flex flex-col overflow-hidden">
+            <div class="px-6 py-4 bg-white border-b border-gray-100 flex flex-wrap gap-4 items-center">
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-bold text-gray-700">보고 연도:</label>
+                    <input type="number" id="edit-year" class="w-24 p-1.5 border border-gray-300 rounded text-center font-bold text-[#6200EA] focus:ring-2 focus:ring-[#6200EA] outline-none">
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-bold text-gray-700">기준 월 (가마감):</label>
+                    <input type="number" id="edit-m1" class="w-16 p-1.5 border border-gray-300 rounded text-center font-bold text-[#6200EA] focus:ring-2 focus:ring-[#6200EA] outline-none">
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-bold text-gray-700">비교 월 (예상):</label>
+                    <input type="number" id="edit-m2" class="w-16 p-1.5 border border-gray-300 rounded text-center font-bold text-[#00E5FF] focus:ring-2 focus:ring-[#00E5FF] outline-none">
+                </div>
+                <span class="text-xs text-gray-500 ml-auto">* 소수점 2자리까지 입력 가능합니다. 이 탭의 데이터는 대시보드의 모든 표와 차트에 연동됩니다.</span>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                    <table class="w-full text-sm text-center border-collapse">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0 shadow-sm z-10">
+                            <tr>
+                                <th class="px-4 py-3 bg-gray-200 font-bold border border-gray-300">지표명</th>
+                                <th class="px-3 py-3 bg-indigo-50/70 border border-gray-300"><span class="period-m1-text">3월</span> 예상</th>
+                                <th class="px-3 py-3 bg-indigo-50/70 border border-gray-300"><span class="period-m1-text">3월</span> 계획</th>
+                                <th class="px-3 py-3 bg-indigo-50/70 border border-gray-300"><span class="period-m1-text">3월</span> 전년</th>
+                                <th class="px-3 py-3 bg-cyan-50/70 border border-gray-300"><span class="period-m2-text">4월</span> 예상</th>
+                                <th class="px-3 py-3 bg-cyan-50/70 border border-gray-300"><span class="period-m2-text">4월</span> 계획</th>
+                                <th class="px-3 py-3 bg-cyan-50/70 border border-gray-300"><span class="period-m2-text">4월</span> 전년</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editorTableBody" class="divide-y divide-gray-200">
+                            <!-- JS로 동적 생성됨 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1~12월 트렌드 에디터 뷰 -->
+        <div id="editorViewTrends" class="hidden flex-1 flex flex-col overflow-hidden">
+            <div class="px-6 py-4 bg-white border-b border-gray-100 flex items-center gap-4">
+                <label class="text-sm font-bold text-gray-700">편집할 법인 선택:</label>
+                <select id="trendEntitySelector" onchange="changeTrendEntity()" class="p-2 border border-gray-300 rounded font-bold text-[#6200EA] focus:ring-2 focus:ring-[#6200EA] outline-none cursor-pointer shadow-sm">
+                    <!-- JS로 동적 옵션 생성 -->
+                </select>
+                <span class="text-xs text-gray-500 ml-auto">* 소수점 2자리까지 입력 가능. 값이 비어있으면(빈칸) 미확정 실적으로 간주하여 렌더링하지 않습니다.</span>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="overflow-x-auto border border-gray-200 rounded-xl">
+                    <table class="w-full text-sm text-center border-collapse">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100 sticky top-0 shadow-sm z-10">
+                            <tr>
+                                <th class="px-4 py-3 bg-gray-200 font-bold border border-gray-300 w-24">월 (Month)</th>
+                                <th class="px-4 py-3 bg-indigo-50/70 border border-gray-300 text-[#6200EA]">실적 (Actual)</th>
+                                <th class="px-4 py-3 bg-gray-50 border border-gray-300 text-gray-700">사업계획 (Plan)</th>
+                                <th class="px-4 py-3 bg-gray-50 border border-gray-300 text-gray-500">전년실적 (Prev)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trendEditorTableBody" class="divide-y divide-gray-200">
+                            <!-- JS로 동적 생성됨 (12개월) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 bg-gray-50">
+            <button onclick="closeDataEditor()" class="px-6 py-2.5 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 font-medium transition-colors">닫기 (취소)</button>
+            <button onclick="saveDataEditor()" class="px-6 py-2.5 text-white bg-gradient-to-r from-[#6200EA] to-[#00E5FF] rounded-lg hover:from-[#5000C0] hover:to-[#00C5E0] font-bold shadow-md transition-all hover:shadow-lg">저장 및 차트 업데이트</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// 전역 애플리케이션 상태 (PDF 표 수치 소수점 1자리까지 완벽 반영 및 법인 순서 변경 반영)
+const appState = {
+    period: { year: 2026, m1: 3, m2: 4 },
+    // 요약 카드 및 테이블용 (2개월치)
+    conn: {
+        subs: ['NBT 연결', 'BIO 연결', '건기식 합산'],
+        mar: { expected: [314.9, 171.1, 486.0], plan: [275.0, 169.9, 444.9], prev: [233.4, 145.1, 378.5] },
+        apr: { expected: [352.3, 178.8, 531.1], plan: [310.0, 175.1, 485.1], prev: [232.6, 133.3, 365.9] }
+    },
+    // 법인별 바 차트 및 테이블용 (2개월치) - NBT한국, 중국, 호주, 미국 순으로 통일
+    subs: ['NBT 한국', 'NBT 중국', 'NBT 호주', 'NBT 미국', 'BIO 한국', 'BIO 상해', '건강여행', '펫법인', '파마'],
+    colorsMar: ['#4A148C', '#AB47BC', '#7B1FA2', '#CE93D8', '#006064', '#0097A7', '#26C6DA', '#80DEEA', '#E65100'],
+    colorsApr: ['#7B1FA2', '#CE93D8', '#9C27B0', '#E1BEE7', '#00838F', '#00BCD4', '#4DD0E1', '#B2EBF2', '#FF9800'],
+    mar: {
+        expected: [245.9, 95.5, 65.1, 6.8, 140.0, 17.6, 6.0, 10.1, 32.2],
+        plan: [208.5, 76.1, 56.4, 2.0, 136.0, 15.3, 10.4, 10.1, 33.3],
+        prev: [157.4, 71.4, 48.1, 16.0, 120.7, 14.7, 7.9, 6.3, 30.0]
+    },
+    apr: {
+        expected: [283.6, 110.4, 58.2, 16.7, 146.8, 16.5, 5.9, 11.5, 32.0],
+        plan: [245.5, 81.6, 56.8, 16.8, 142.2, 16.9, 6.3, 11.2, 44.1],
+        prev: [164.3, 51.3, 47.1, 21.0, 106.6, 16.1, 5.6, 6.1, 29.9]
+    },
+    // 전체 월별 트렌드 차트 데이터
+    trends: [
+        { name: 'NBT 연결', actual: [327.7, 286.4, 314.9, 352.3, null, null, null, null, null, null, null, null], plan: [285, 255, 275.0, 310.0, 305, 295, 290, 270, 315, 315, 310, 265], prev: [256, 233, 233.4, 232.6, 273, 251, 220, 207, 230, 237, 270, 233] },
+        { name: 'NBT 한국', actual: [279.3, 203.7, 245.9, 283.6, null, null, null, null, null, null, null, null], plan: [233, 201, 208.5, 245.5, 231, 233, 219, 208, 247, 244, 233, 197], prev: [192, 166, 157.4, 164.3, 184, 171, 145, 153, 166, 173, 210, 187] },
+        { name: 'NBT 중국', actual: [115.1, 85.5, 95.5, 110.4, null, null, null, null, null, null, null, null], plan: [86, 71, 76.1, 81.6, 81, 77, 81, 80, 81, 89, 72, 79], prev: [102, 70, 71.4, 51.3, 90, 68, 52, 50, 45, 57, 57, 76] },
+        { name: 'NBT 호주', actual: [52.5, 61.5, 65.1, 58.2, null, null, null, null, null, null, null, null], plan: [45, 51, 56.4, 56.8, 58, 51, 62, 47, 53, 56, 59, 44], prev: [17, 42, 48.1, 47.1, 45, 40, 47, 48, 54, 52, 58, 36] },
+        { name: 'NBT 미국', actual: [18.3, 9.0, 6.8, 16.7, null, null, null, null, null, null, null, null], plan: [19, 12, 2.0, 16.8, 23, 14, 15, 15, 26, 29, 28, 27], prev: [25, 15, 16.0, 21.0, 31, 33, 26, 9, 5, 19, 17, 3] },
+        { name: 'BIO 연결', actual: [159.8, 141.5, 171.1, 178.8, null, null, null, null, null, null, null, null], plan: [162, 140, 169.9, 175.1, 165, 176, 172, 169, 195, 183, 181, 186], prev: [123, 106, 145.1, 133.3, 142, 140, 132, 133, 170, 156, 155, 145] },
+        { name: 'BIO 한국', actual: [132.3, 120.2, 140.0, 146.8, null, null, null, null, null, null, null, null], plan: [130, 114, 136.0, 142.2, 131, 141, 135, 140, 154, 141, 141, 145], prev: [104, 88, 120.7, 106.6, 119, 110, 111, 113, 142, 134, 134, 126] },
+        { name: 'BIO 상해', actual: [14.7, 12.8, 17.6, 16.5, null, null, null, null, null, null, null, null], plan: [13, 15, 15.3, 16.9, 19, 17, 17, 17, 18, 18, 17, 17], prev: [10, 9, 14.7, 16.1, 15, 22, 14, 14, 14, 10, 10, 8] },
+        { name: '건강여행', actual: [13.0, 8.0, 6.0, 5.9, null, null, null, null, null, null, null, null], plan: [15, 10, 10.4, 6.3, 7, 8, 9, 7, 13, 13, 11, 14], prev: [9, 5, 7.9, 5.6, 16, 16, 8, 7, 12, 6, 7, 9] },
+        { name: '펫법인', actual: [9.0, 6.3, 10.1, 11.5, null, null, null, null, null, null, null, null], plan: [10, 9, 10.1, 11.2, 11, 12, 10, 10, 13, 13, 16, 13], prev: [6, 6, 6.3, 6.1, 7, 7, 7, 7, 8, 9, 9, 7] },
+        { name: '파마', actual: [30.4, 20.5, 32.2, 32.0, null, null, null, null, null, null, null, null], plan: [30, 36, 33.3, 44.1, 38, 37, 44, 48, 48, 50, 45, 47], prev: [29, 25, 30.0, 29.9, 31, 28, 24, 24, 33, 30, 27, 38] },
+        { name: '파마 제천', actual: [22.8, 12.7, 21.1, 14.6, null, null, null, null, null, null, null, null], plan: [16, 21, 17.7, 29.9, 22, 21, 29, 32, 35, 37, 29, 31], prev: [21, 14, 20.2, 18.6, 21, 17, 15, 13, 22, 24, 16, 23] },
+        { name: '파마 오송', actual: [7.6, 7.8, 11.1, 17.4, null, null, null, null, null, null, null, null], plan: [14, 15, 15.6, 14.2, 16, 15, 15, 16, 13, 13, 16, 16], prev: [8, 12, 9.7, 11.3, 11, 10, 8, 11, 11, 6, 12, 15] }
+    ]
+};
+
+// 상세 실적 종합표 설정 데이터
+const detailedTableConfig = [
+    { name: 'NBT연결', type: 'conn', stateIdx: 0, m1: 327.7, m2: 286.4, ytd_prev: 954.4, ytd_plan: 1125.0 },
+    { name: 'NBT한국', type: 'sub', stateIdx: 0, m1: 279.3, m2: 203.7, ytd_prev: 680.4, ytd_plan: 888.0 },
+    { name: '국내', type: 'static', m1: 103.5, m2: 80.2, mar_prev: 68.3, mar_plan: 95.0, mar_exp: 102.5, apr_prev: 75.3, apr_plan: 100.0, apr_exp: 110.0, ytd_prev: 293.1, ytd_plan: 360.0, indent: true },
+    { name: '해외', type: 'static', m1: 172.6, m2: 121.1, mar_prev: 89.9, mar_plan: 111.0, mar_exp: 140.9, apr_prev: 83.6, apr_plan: 143.0, apr_exp: 171.1, ytd_prev: 373.6, ytd_plan: 518.0, indent: true },
+    { name: '기타', type: 'static', m1: 3.1, m2: 2.5, mar_prev: -0.8, mar_plan: 2.5, mar_exp: 2.5, apr_prev: 5.4, apr_plan: 2.5, apr_exp: 2.5, ytd_prev: 13.6, ytd_plan: 10.0, indent: true },
+    { name: 'NBT중국(직구포함)', type: 'sub', stateIdx: 1, m1: 115.1, m2: 85.5, ytd_prev: 295.5, ytd_plan: 315.0 },
+    { name: 'NBT호주', type: 'sub', stateIdx: 2, m1: 52.5, m2: 61.5, ytd_prev: 154.0, ytd_plan: 209.9 },
+    { name: 'NBT미국', type: 'sub', stateIdx: 3, m1: 18.3, m2: 9.0, ytd_prev: 77.1, ytd_plan: 49.2 },
+    { name: 'BIO연결', type: 'conn', stateIdx: 1, m1: 159.8, m2: 141.5, ytd_prev: 507.6, ytd_plan: 647.0 },
+    { name: 'BIO한국', type: 'sub', stateIdx: 4, m1: 132.3, m2: 120.2, ytd_prev: 419.8, ytd_plan: 521.9 },
+    { name: '국내', type: 'static', m1: 108.0, m2: 112.0, mar_prev: 96.2, mar_plan: 117.9, mar_exp: 108.4, apr_prev: 95.2, apr_plan: 121.6, apr_exp: 115.6, ytd_prev: 352.2, ytd_plan: 451.8, indent: true },
+    { name: '해외', type: 'static', m1: 24.4, m2: 8.2, mar_prev: 24.4, mar_plan: 18.2, mar_exp: 31.6, apr_prev: 11.3, apr_plan: 20.6, apr_exp: 31.2, ytd_prev: 67.6, ytd_plan: 70.1, indent: true },
+    { name: 'BIO상해', type: 'sub', stateIdx: 5, m1: 14.7, m2: 12.8, ytd_prev: 49.6, ytd_plan: 60.8 },
+    { name: '건강여행', type: 'sub', stateIdx: 6, m1: 13.0, m2: 8.0, ytd_prev: 27.4, ytd_plan: 41.3 },
+    { name: 'PET', type: 'sub', stateIdx: 7, m1: 9.0, m2: 6.3, ytd_prev: 24.6, ytd_plan: 40.5 },
+    { name: '건기식 Total', type: 'conn', stateIdx: 2, m1: 487.5, m2: 427.9, ytd_prev: 1462.0, ytd_plan: 1772.0, isTotal: true },
+    { name: '파마', type: 'sub', stateIdx: 8, m1: 30.4, m2: 20.5, ytd_prev: 114.6, ytd_plan: 143.0 },
+    { name: '제천', type: 'static', m1: 22.8, m2: 12.7, mar_prev: 20.2, mar_plan: 17.7, mar_exp: 21.1, apr_prev: 18.6, apr_plan: 29.9, apr_exp: 14.6, ytd_prev: 73.9, ytd_plan: 84.8, indent: true },
+    { name: '오송', type: 'static', m1: 7.6, m2: 7.8, mar_prev: 9.7, mar_plan: 15.6, mar_exp: 11.1, apr_prev: 11.3, apr_plan: 14.2, apr_exp: 17.4, ytd_prev: 40.7, ytd_plan: 58.2, indent: true },
+    { name: '건기식 + 제약', type: 'grand_total', m1: 517.9, m2: 448.4, ytd_prev: 1576.6, ytd_plan: 1915.0, isTotal: true }
+];
+
+let chartGroupTrend;
+let trendChartInstances = [];
+
+// 대시보드 UI 표기용 - 항상 정수 반올림 및 천단위 콤마 표시, 소수점 절대 표기 안 함
+const formatVal = (val) => (val === null || val === undefined || isNaN(val)) ? '-' : Math.round(val).toLocaleString('ko-KR');
+// 차트 표기용
+const formatChartVal = (val) => (val === null || val === undefined || isNaN(val)) ? 0 : Math.round(val);
+
+const calcRatio = (val, base) => (!base || base === 0 || isNaN(val) || isNaN(base)) ? '-' : Math.round((val / base) * 100);
+const calcYoY = (val, prev) => {
+    if (val === null || val === undefined || isNaN(val) || !prev || prev === 0 || isNaN(prev)) return '-';
+    const rate = Math.round(((val - prev) / Math.abs(prev)) * 100);
+    return rate > 0 ? '+' + rate : rate.toString();
+};
+
+function generateTrendLabels(entity) {
+    const baseLabels = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+    return baseLabels.map((monthStr, m) => {
+        const act = entity.actual[m];
+        const pln = entity.plan[m];
+        if (act === null || act === undefined) return monthStr;
+        
+        let signal = '🔴';
+        if (pln && pln > 0) {
+            const ratio = (act / pln) * 100;
+            if (ratio >= 100) signal = '🟢';
+            else if (ratio >= 90) signal = '🟡';
+        } else if (act > 0) {
+            signal = '🟢';
+        } else {
+            signal = '⚪';
+        }
+        return [monthStr, signal];
+    });
+}
+
+function updatePeriodTexts() {
+    const { year, m1, m2 } = appState.period;
+    document.getElementById('header-period-badge').innerText = `${year}.${String(m1).padStart(2, '0')}`;
+    document.getElementById('header-period-text').innerText = `${year}년 ${m1}월 가마감 실적 및 ${m2}월 예상 매출 종합 보고`;
+    const sec1Title = document.getElementById('section1-period-title');
+    if (sec1Title) sec1Title.innerText = `${year}년 ${m1}~${m2}월 가마감매출`;
+    document.querySelectorAll('.period-m1-text').forEach(el => el.innerText = `${m1}월`);
+    document.querySelectorAll('.period-m2-text').forEach(el => el.innerText = `${m2}월`);
+}
+
+function updateSummaryCards() {
+    const cMar = appState.conn.mar;
+    const cApr = appState.conn.apr;
+
+    document.getElementById('sum-mar-nbt-exp').innerHTML = `${formatVal(cMar.expected[0])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-mar-nbt-plan').innerText = `${calcRatio(cMar.expected[0], cMar.plan[0])}%`;
+    document.getElementById('sum-mar-nbt-yoy').innerText = `${calcYoY(cMar.expected[0], cMar.prev[0])}%`;
+    document.getElementById('sum-mar-bio-exp').innerHTML = `${formatVal(cMar.expected[1])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-mar-bio-plan').innerText = `${calcRatio(cMar.expected[1], cMar.plan[1])}%`;
+    document.getElementById('sum-mar-bio-yoy').innerText = `${calcYoY(cMar.expected[1], cMar.prev[1])}%`;
+    document.getElementById('sum-mar-total-exp').innerHTML = `${formatVal(cMar.expected[2])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-mar-total-plan').innerText = `${calcRatio(cMar.expected[2], cMar.plan[2])}%`;
+    const totalYoyElement = document.getElementById('sum-mar-total-yoy');
+    if (totalYoyElement) totalYoyElement.innerText = `${calcYoY(cMar.expected[2], cMar.prev[2])}%`;
+
+    document.getElementById('sum-apr-nbt-exp').innerHTML = `${formatVal(cApr.expected[0])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-apr-nbt-plan').innerText = `${calcRatio(cApr.expected[0], cApr.plan[0])}%`;
+    document.getElementById('sum-apr-nbt-yoy').innerText = `${calcYoY(cApr.expected[0], cApr.prev[0])}%`;
+    document.getElementById('sum-apr-bio-exp').innerHTML = `${formatVal(cApr.expected[1])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-apr-bio-plan').innerText = `${calcRatio(cApr.expected[1], cApr.plan[1])}%`;
+    document.getElementById('sum-apr-bio-yoy').innerText = `${calcYoY(cApr.expected[1], cApr.prev[1])}%`;
+    document.getElementById('sum-apr-total-exp').innerHTML = `${formatVal(cApr.expected[2])}<span class="text-base font-bold ml-1 text-white/70">억</span>`;
+    document.getElementById('sum-apr-total-plan').innerText = `${calcRatio(cApr.expected[2], cApr.plan[2])}%`;
+    const aprTotalYoyElement = document.getElementById('sum-apr-total-yoy');
+    if (aprTotalYoyElement) aprTotalYoyElement.innerText = `${calcYoY(cApr.expected[2], cApr.prev[2])}%`;
+}
+
+Chart.unregister(ChartDataLabels);
+
+const targetLinePlugin = {
+    id: 'targetLinePlugin',
+    afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((bar, index) => {
+                if (!dataset.targets) return;
+                const plan = dataset.targets.plan[index];
+                const prev = dataset.targets.prev[index];
+
+                ctx.save();
+                if (prev) {
+                    const prevY = chart.scales.y.getPixelForValue(prev);
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#94A3B8'; 
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(bar.x - bar.width / 2 + 2, prevY);
+                    ctx.lineTo(bar.x + bar.width / 2 - 2, prevY);
+                    ctx.stroke();
+                }
+                if (plan) {
+                    const planY = chart.scales.y.getPixelForValue(plan);
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#E11D48'; 
+                    ctx.lineWidth = 2.5;
+                    ctx.setLineDash([]);
+                    ctx.moveTo(bar.x - bar.width / 2 - 4, planY);
+                    ctx.lineTo(bar.x + bar.width / 2 + 4, planY);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            });
+        });
+    }
+};
+
+const dynamicFormatter = function(value, context) {
+    const i = context.dataIndex;
+    const monthState = context.datasetIndex === 0 ? appState.mar : appState.apr;
+    const p = calcRatio(value, monthState.plan[i]);
+    const y = calcYoY(value, monthState.prev[i]);
+    
+    let signal = '⚪'; 
+    if (p !== '-') {
+        const planVal = parseFloat(p);
+        if (planVal >= 100) signal = '🟢';
+        else if (planVal >= 90) signal = '🟡';
+        else signal = '🔴';
+    }
+
+    if (appState.subs[i] === 'BIO 상해' && context.datasetIndex === 1 && p === '-' && y === '-') {
+        return `${signal}\n${formatChartVal(value)}억\n(계획 -)\n(전년 -)`;
+    }
+    return `${signal}\n${formatChartVal(value)}억\n🎯 ${p}%\n📈 ${y}%`;
+};
+
+function initSummaryCharts() {
+    const { m1, m2 } = appState.period;
+    const lblM1 = `${m1}월 예상`;
+    const lblM2 = `${m2}월 예상`;
+
+    const ctxGroup = document.getElementById('groupTrendChart');
+    if (ctxGroup) {
+        chartGroupTrend = new Chart(ctxGroup, {
+            type: 'bar',
+            plugins: [ChartDataLabels, targetLinePlugin],
+            data: {
+                labels: appState.subs,
+                datasets: [
+                    {
+                        label: lblM1, data: [...appState.mar.expected],
+                        targets: { plan: [...appState.mar.plan], prev: [...appState.mar.prev] },
+                        backgroundColor: appState.colorsMar, borderRadius: 6, barPercentage: 0.85,
+                        datalabels: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: (c) => c.dataset.backgroundColor[c.dataIndex], borderWidth: 2, borderRadius: 8, color: '#1E293B',
+                            font: { size: 10, weight: 'bold', family: 'Pretendard', lineHeight: 1.4 }, padding: { top: 4, bottom: 4, left: 6, right: 6 }, textAlign: 'center', anchor: 'end', align: 'top', offset: 8,
+                            formatter: dynamicFormatter
+                        }
+                    },
+                    {
+                        label: lblM2, data: [...appState.apr.expected],
+                        targets: { plan: [...appState.apr.plan], prev: [...appState.apr.prev] },
+                        backgroundColor: appState.colorsApr, borderRadius: 6, barPercentage: 0.85,
+                        datalabels: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: (c) => c.dataset.backgroundColor[c.dataIndex], borderWidth: 2, borderRadius: 8, color: '#1E293B',
+                            font: { size: 10, weight: 'bold', family: 'Pretendard', lineHeight: 1.4 }, padding: { top: 4, bottom: 4, left: 6, right: 6 }, textAlign: 'center', anchor: 'end', align: 'top', offset: 8,
+                            formatter: dynamicFormatter
+                        }
+                    }
+                ]
+            },
+            options: { maintainAspectRatio: false, responsive: true, layout: { padding: { top: 40 } }, plugins: { tooltip: { callbacks: { title: function(t) { return Array.isArray(t[0].label) ? t[0].label.join(' ') : t[0].label; } } }, legend: { position: 'bottom', labels: { boxWidth: 14, font: { size: 13, weight: 'bold' }, padding: 20 } } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 12, weight: 'bold' } } }, y: { title: { display: true, text: '매출 (억원)' }, suggestedMax: Math.max(...appState.apr.expected, ...appState.mar.expected) * 1.3 } } }
+        });
+    }
+}
+
+function initMonthlyTrendCharts() {
+    const wrapper = document.getElementById('trend-charts-wrapper');
+    if (!wrapper) return;
+    wrapper.innerHTML = '';
+    trendChartInstances = [];
+
+    appState.trends.forEach((entity, idx) => {
+        const container = document.createElement('div');
+        container.className = 'glass-card flex flex-col justify-between hover:shadow-xl transition-shadow duration-300';
+        
+        let themeColor = '#6200EA'; 
+        let themeGradient = ['rgba(98, 0, 234, 0.25)', 'rgba(98, 0, 234, 0)'];
+        let borderCol = 'border-[#6200EA]';
+
+        if(entity.name.includes('BIO') || entity.name.includes('여행') || entity.name.includes('펫')) {
+            themeColor = '#00B8D4';
+            themeGradient = ['rgba(0, 184, 212, 0.25)', 'rgba(0, 184, 212, 0)'];
+            borderCol = 'border-[#00B8D4]';
+        } else if(entity.name.includes('파마')) {
+            themeColor = '#FF6D00';
+            themeGradient = ['rgba(255, 109, 0, 0.25)', 'rgba(255, 109, 0, 0)'];
+            borderCol = 'border-[#FF6D00]';
+        }
+
+        container.innerHTML = `
+            <div class="flex items-center justify-between border-b-2 ${borderCol} pb-2 mb-4">
+                <h4 class="font-extrabold text-lg text-gray-800">${entity.name}</h4>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-md bg-gray-100 text-gray-500 uppercase tracking-wider">12M Trend</span>
+            </div>
+            <div class="trend-chart-container" style="height: 250px;">
+                <canvas id="trendChart12M-${idx}"></canvas>
+            </div>
+        `;
+        wrapper.appendChild(container);
+
+        const customLabels = generateTrendLabels(entity);
+
+        const ctx = document.getElementById(`trendChart12M-${idx}`);
+        if (ctx) {
+            const chart = new Chart(ctx, {
+                type: 'line',
+                plugins: [ChartDataLabels],
+                data: {
+                    labels: customLabels,
+                    datasets: [
+                        {
+                            label: '전년실적', 
+                            data: [...entity.prev], 
+                            borderColor: '#E2E8F0', 
+                            backgroundColor: 'transparent',
+                            borderWidth: 2, 
+                            tension: 0.3,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            datalabels: { 
+                                color: '#9CA3AF',
+                                font: { size: 10, weight: '500', family: 'Pretendard' },
+                                align: function(ctx) {
+                                    const i = ctx.dataIndex;
+                                    const prv = ctx.dataset.data[i];
+                                    const pln = ctx.chart.data.datasets[1].data[i];
+                                    const act = ctx.chart.data.datasets[2].data[i] || prv;
+                                    return (prv >= pln && prv >= act) ? 'top' : 'bottom';
+                                },
+                                offset: function(ctx) {
+                                    const i = ctx.dataIndex;
+                                    const prv = ctx.dataset.data[i];
+                                    const pln = ctx.chart.data.datasets[1].data[i];
+                                    const act = ctx.chart.data.datasets[2].data[i] || Infinity;
+                                    if (Math.abs(prv - pln) < Math.max(pln * 0.1, 10) || Math.abs(prv - act) < Math.max(act * 0.1, 10)) return 18;
+                                    return 4;
+                                },
+                                display: function(context) { return context.dataset.data[context.dataIndex] !== null && context.dataset.data[context.dataIndex] !== undefined; },
+                                formatter: function(v) { return formatChartVal(v); }
+                            }
+                        },
+                        {
+                            label: '사업계획', 
+                            data: [...entity.plan], 
+                            borderColor: '#94A3B8', 
+                            backgroundColor: 'transparent',
+                            borderWidth: 2, 
+                            borderDash: [5, 5],
+                            tension: 0.3,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            datalabels: { 
+                                color: '#64748B',
+                                font: { size: 10, weight: '600', family: 'Pretendard' },
+                                align: function(ctx) {
+                                    const i = ctx.dataIndex;
+                                    const pln = ctx.dataset.data[i];
+                                    const act = ctx.chart.data.datasets[2].data[i] || 0;
+                                    return pln > act ? 'top' : 'bottom';
+                                },
+                                offset: 5,
+                                display: function(context) { return context.dataset.data[context.dataIndex] !== null && context.dataset.data[context.dataIndex] !== undefined; },
+                                formatter: function(v) { return formatChartVal(v); }
+                            }
+                        },
+                        {
+                            label: '실적', 
+                            data: [...entity.actual], 
+                            borderColor: themeColor, 
+                            backgroundColor: function(context) {
+                                const chart = context.chart;
+                                const {ctx, chartArea} = chart;
+                                if (!chartArea) return;
+                                let gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                gradient.addColorStop(0, themeGradient[0]);
+                                gradient.addColorStop(1, themeGradient[1]);
+                                return gradient;
+                            },
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#FFFFFF',
+                            pointBorderColor: themeColor,
+                            pointBorderWidth: 2,
+                            pointRadius: 4, 
+                            pointHoverRadius: 6,
+                            datalabels: {
+                                color: themeColor, 
+                                backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+                                borderRadius: 4, 
+                                font: { weight: '900', size: 10, family: 'Pretendard' },
+                                padding: {top:3, bottom:3, left:5, right:5}, 
+                                align: function(ctx) {
+                                    const i = ctx.dataIndex;
+                                    const act = ctx.dataset.data[i];
+                                    const pln = ctx.chart.data.datasets[1].data[i];
+                                    return act >= pln ? 'top' : 'bottom';
+                                }, 
+                                offset: 6,
+                                textAlign: 'center',
+                                display: function(context) { return context.dataset.data[context.dataIndex] !== null && context.dataset.data[context.dataIndex] !== undefined; },
+                                formatter: function(v) { return formatChartVal(v); }
+                            }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { top: 50, left: 10, right: 10, bottom: 25 } },
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)', titleColor: '#1E293B', bodyColor: '#334155', borderColor: '#E2E8F0', borderWidth: 1, padding: 10, boxPadding: 4, usePointStyle: true,
+                            callbacks: { label: function(context) { return context.dataset.label + ': ' + formatChartVal(context.parsed.y) + '억'; } }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 11, weight: '500' }, color: '#94A3B8' } },
+                        y: { display: true, position: 'right', grid: { color: '#F1F5F9', borderDash: [4, 4] }, border: { display: false }, ticks: { font: { size: 10 }, color: '#CBD5E1', maxTicksLimit: 5 }, beginAtZero: false }
+                    }
+                }
+            });
+            trendChartInstances.push(chart);
+        }
+    });
+}
+
+// ----------------------------------------------------
+// 상세 실적 종합표 렌더링 로직
+// ----------------------------------------------------
+function renderDetailedTable() {
+    const tbody = document.getElementById('detailedTableBody');
+    if(!tbody) return;
+    let html = '';
+
+    const fmtPct = (val, base) => {
+        if (!base || base === 0 || val === null || val === undefined || isNaN(val) || isNaN(base)) return '-';
+        const pct = Math.round((val / base) * 100);
+        // 90% 이하일 때만 붉은색 글씨로 표기
+        const colorCls = pct <= 90 ? 'text-rose-500 font-bold' : 'text-indigo-600 font-bold';
+        return `<span class="${colorCls}">${pct}%</span>`;
+    };
+
+    const fmtYoY = (val, prev) => {
+        if (!prev || prev === 0 || val === null || val === undefined || isNaN(val) || isNaN(prev)) return '-';
+        const pct = Math.round(((val - prev) / Math.abs(prev)) * 100);
+        const colorCls = pct < 0 ? 'text-rose-500 font-bold' : 'text-indigo-600 font-bold';
+        const sign = pct > 0 ? '+' : '';
+        return `<span class="${colorCls}">${sign}${pct}%</span>`;
+    };
+
+    detailedTableConfig.forEach(row => {
+        let mar_p, mar_pl, mar_e, apr_p, apr_pl, apr_e;
+
+        if (row.type === 'conn') {
+            mar_p = appState.conn.mar.prev[row.stateIdx];
+            mar_pl = appState.conn.mar.plan[row.stateIdx];
+            mar_e = appState.conn.mar.expected[row.stateIdx];
+            apr_p = appState.conn.apr.prev[row.stateIdx];
+            apr_pl = appState.conn.apr.plan[row.stateIdx];
+            apr_e = appState.conn.apr.expected[row.stateIdx];
+        } else if (row.type === 'sub') {
+            mar_p = appState.mar.prev[row.stateIdx];
+            mar_pl = appState.mar.plan[row.stateIdx];
+            mar_e = appState.mar.expected[row.stateIdx];
+            apr_p = appState.apr.prev[row.stateIdx];
+            apr_pl = appState.apr.plan[row.stateIdx];
+            apr_e = appState.apr.expected[row.stateIdx];
+        } else if (row.type === 'static') {
+            mar_p = row.mar_prev; mar_pl = row.mar_plan; mar_e = row.mar_exp;
+            apr_p = row.apr_prev; apr_pl = row.apr_plan; apr_e = row.apr_exp;
+        } else if (row.type === 'grand_total') {
+            // 건기식+제약 합계 (건기식 합산: conn 인덱스 2 / 파마: sub 인덱스 8)
+            mar_p = appState.conn.mar.prev[2] + appState.mar.prev[8];
+            mar_pl = appState.conn.mar.plan[2] + appState.mar.plan[8];
+            mar_e = appState.conn.mar.expected[2] + appState.mar.expected[8];
+            apr_p = appState.conn.apr.prev[2] + appState.apr.prev[8];
+            apr_pl = appState.conn.apr.plan[2] + appState.apr.plan[8];
+            apr_e = appState.conn.apr.expected[2] + appState.apr.expected[8];
+
+            // 부동소수점 연산 정밀도 보정 (소수점 2자리)
+            mar_p = parseFloat(mar_p.toFixed(2));
+            mar_pl = parseFloat(mar_pl.toFixed(2));
+            mar_e = parseFloat(mar_e.toFixed(2));
+            apr_p = parseFloat(apr_p.toFixed(2));
+            apr_pl = parseFloat(apr_pl.toFixed(2));
+            apr_e = parseFloat(apr_e.toFixed(2));
+        }
+
+        // 누적 데이터: 1월 + 2월 + 3월예상 + 4월예상 (부동소수점 보정 2자리)
+        let ytd_e = parseFloat((row.m1 + row.m2 + mar_e + apr_e).toFixed(2));
+
+        let tdBorder = 'border border-slate-200';
+        if (row.indent) {
+            tdBorder = 'border-x border-slate-200 border-y-0';
+        }
+
+        let trClass = 'hover:bg-slate-50 transition-colors text-slate-700';
+        let basePadding = 'py-1 px-2'; 
+        let nameClass = `${basePadding} text-left sticky-col shadow-[1px_0_0_#E2E8F0] ${tdBorder}`;
+        
+        if (row.isTotal) {
+            basePadding = 'py-1.5 px-2';
+            trClass = 'bg-slate-200/60 font-extrabold text-slate-900';
+            nameClass = `${basePadding} text-left sticky-col bg-slate-200 shadow-[1px_0_0_#CBD5E1] ${tdBorder} font-extrabold text-slate-900`;
+        } else if (row.type === 'conn') {
+            if (row.name.includes('NBT')) {
+                trClass = 'bg-indigo-50/60 font-extrabold text-indigo-900';
+                nameClass = `${basePadding} text-left sticky-col bg-indigo-50 shadow-[1px_0_0_#C7D2FE] ${tdBorder} font-extrabold text-indigo-900`;
+            } else if (row.name.includes('BIO')) {
+                trClass = 'bg-sky-50/60 font-extrabold text-sky-900';
+                nameClass = `${basePadding} text-left sticky-col bg-sky-50 shadow-[1px_0_0_#BAE6FD] ${tdBorder} font-extrabold text-sky-900`;
+            } else {
+                trClass = 'bg-slate-100/60 font-extrabold text-slate-900';
+                nameClass = `${basePadding} text-left sticky-col bg-slate-100 shadow-[1px_0_0_#CBD5E1] ${tdBorder} font-extrabold text-slate-900`;
+            }
+        } else if (row.type === 'sub') {
+            trClass = 'bg-white font-bold text-slate-800';
+            let indentClass = row.name === '파마' ? 'pl-3' : 'pl-5 relative before:content-["└"] before:absolute before:left-1.5 before:text-slate-300';
+            nameClass = `${basePadding} text-left sticky-col bg-white shadow-[1px_0_0_#E2E8F0] ${tdBorder} ${indentClass}`;
+        } else if (row.indent) {
+            basePadding = 'py-0.5 px-2';
+            trClass = 'bg-white hover:bg-slate-50/50 transition-colors font-medium text-slate-600 text-[11px]';
+            nameClass = `${basePadding} text-left sticky-col bg-white shadow-[1px_0_0_#E2E8F0] ${tdBorder} pl-8 relative before:content-["└"] before:absolute before:left-4 before:text-slate-200`;
+        }
+
+        const tdClassStr = `${basePadding} text-right ${tdBorder}`;
+        const marExpClass = `${tdClassStr} font-bold text-indigo-700 bg-indigo-50/30`;
+        const aprExpClass = `${tdClassStr} font-bold text-cyan-700 bg-cyan-50/30`;
+        const ytdExpClass = `${tdClassStr} font-bold text-emerald-700 bg-emerald-50/30`;
+
+        html += `
+            <tr class="${trClass}">
+                <td class="${nameClass}">${row.name}</td>
+                <td class="${tdClassStr}">${formatVal(row.m1)}</td>
+                <td class="${tdClassStr}">${formatVal(row.m2)}</td>
+
+                <td class="${tdClassStr} text-slate-400">${formatVal(mar_p)}</td>
+                <td class="${tdClassStr} text-slate-500">${formatVal(mar_pl)}</td>
+                <td class="${marExpClass}">${formatVal(mar_e)}</td>
+                <td class="${tdClassStr}">${fmtPct(mar_e, mar_pl)}</td>
+                <td class="${tdClassStr}">${fmtYoY(mar_e, mar_p)}</td>
+
+                <td class="${tdClassStr} text-slate-400">${formatVal(apr_p)}</td>
+                <td class="${tdClassStr} text-slate-500">${formatVal(apr_pl)}</td>
+                <td class="${aprExpClass}">${formatVal(apr_e)}</td>
+                <td class="${tdClassStr}">${fmtPct(apr_e, apr_pl)}</td>
+                <td class="${tdClassStr}">${fmtYoY(apr_e, apr_p)}</td>
+
+                <td class="${tdClassStr} text-slate-400">${formatVal(row.ytd_prev)}</td>
+                <td class="${tdClassStr} text-slate-500">${formatVal(row.ytd_plan)}</td>
+                <td class="${ytdExpClass}">${formatVal(ytd_e)}</td>
+                <td class="${tdClassStr}">${fmtPct(ytd_e, row.ytd_plan)}</td>
+                <td class="${tdClassStr}">${fmtYoY(ytd_e, row.ytd_prev)}</td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+// ----------------------------------------------------
+// 데이터 수정 모달 및 탭 (Data Editor)
+// ----------------------------------------------------
+let currentTrendEntityIndex = 0;
+
+function openDataEditor() {
+    document.getElementById('edit-year').value = appState.period.year;
+    document.getElementById('edit-m1').value = appState.period.m1;
+    document.getElementById('edit-m2').value = appState.period.m2;
+
+    renderSummaryEditorTable();
+
+    const select = document.getElementById('trendEntitySelector');
+    select.innerHTML = '';
+    appState.trends.forEach((t, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.text = t.name;
+        select.appendChild(opt);
+    });
+    currentTrendEntityIndex = 0;
+    renderTrendEditorTable();
+
+    switchEditorTab('summary');
+
+    const modal = document.getElementById('dataEditorModal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.children[0].classList.remove('scale-95');
+        modal.children[0].classList.add('scale-100');
+    }, 10);
+}
+
+function closeDataEditor() {
+    const modal = document.getElementById('dataEditorModal');
+    modal.classList.add('opacity-0');
+    modal.children[0].classList.remove('scale-100');
+    modal.children[0].classList.add('scale-95');
+    setTimeout(() => { modal.classList.add('hidden'); }, 300);
+}
+
+function switchEditorTab(tab) {
+    const vSum = document.getElementById('editorViewSummary');
+    const vTrd = document.getElementById('editorViewTrends');
+    const bSum = document.getElementById('tabBtnSummary');
+    const bTrd = document.getElementById('tabBtnTrends');
+
+    if(tab === 'summary') {
+        saveCurrentTrendTableState();
+        vSum.classList.remove('hidden');
+        vTrd.classList.add('hidden');
+        bSum.classList.add('active');
+        bTrd.classList.remove('active');
+    } else {
+        vSum.classList.add('hidden');
+        vTrd.classList.remove('hidden');
+        bSum.classList.remove('active');
+        bTrd.classList.add('active');
+        renderTrendEditorTable();
+    }
+}
+
+function renderSummaryEditorTable() {
+    const tbody = document.getElementById('editorTableBody');
+    let html = '';
+    
+    html += `<tr><td colspan="7" class="bg-gray-200 py-1.5 text-xs font-extrabold text-gray-700 tracking-wider">연결 및 합산 수치 (Summary Cards)</td></tr>`;
+    appState.conn.subs.forEach((sub, i) => {
+        // step을 0.01로 수정하여 소수점 두 자리까지 입력 가능하도록 변경
+        html += `
+            <tr class="hover:bg-amber-50/50 transition-colors bg-amber-50/20">
+                <td class="px-4 py-2 font-extrabold text-amber-900 border border-gray-300 text-left">⭐ ${sub}</td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-mar-exp-${i}" value="${appState.conn.mar.expected[i]}" class="w-16 p-1.5 border border-amber-300 bg-white rounded text-center font-bold focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-mar-plan-${i}" value="${appState.conn.mar.plan[i]}" class="w-16 p-1.5 border border-amber-300 bg-white rounded text-center focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-mar-prev-${i}" value="${appState.conn.mar.prev[i]}" class="w-16 p-1.5 border border-amber-300 bg-white rounded text-center text-gray-500 focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-apr-exp-${i}" value="${appState.conn.apr.expected[i]}" class="w-16 p-1.5 border border-amber-300 bg-white rounded text-center font-bold focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-apr-plan-${i}" value="${appState.conn.apr.plan[i]}" class="w-16 p-1.5 border border-amber-300 bg-white rounded text-center focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300"><input type="number" step="0.01" id="e-conn-apr-prev-${i}" value="${appState.conn.apr.prev[i]}" class="w-16 p-1.5 border border-amber-300 bg-white rounded text-center text-gray-500 focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+            </tr>
+        `;
+    });
+
+    html += `<tr><td colspan="7" class="bg-gray-200 py-1.5 text-xs font-extrabold text-gray-700 tracking-wider">개별 법인 수치 (Chart Data)</td></tr>`;
+    appState.subs.forEach((sub, i) => {
+        // step을 0.01로 수정
+        html += `
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-4 py-2 font-bold text-gray-800 border border-gray-300 text-left">${sub}</td>
+                <td class="px-2 py-2 border border-gray-300 bg-indigo-50/20"><input type="number" step="0.01" id="e-mar-exp-${i}" value="${appState.mar.expected[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-indigo-50/20"><input type="number" step="0.01" id="e-mar-plan-${i}" value="${appState.mar.plan[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-indigo-50/20"><input type="number" step="0.01" id="e-mar-prev-${i}" value="${appState.mar.prev[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center text-gray-500 focus:ring-2 focus:ring-[#6200EA] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-cyan-50/20"><input type="number" step="0.01" id="e-apr-exp-${i}" value="${appState.apr.expected[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-cyan-50/20"><input type="number" step="0.01" id="e-apr-plan-${i}" value="${appState.apr.plan[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+                <td class="px-2 py-2 border border-gray-300 bg-cyan-50/20"><input type="number" step="0.01" id="e-apr-prev-${i}" value="${appState.apr.prev[i]}" class="w-16 p-1.5 border border-gray-300 rounded text-center text-gray-500 focus:ring-2 focus:ring-[#00E5FF] outline-none"></td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+function changeTrendEntity() {
+    saveCurrentTrendTableState();
+    currentTrendEntityIndex = document.getElementById('trendEntitySelector').value;
+    renderTrendEditorTable();
+}
+
+function renderTrendEditorTable() {
+    const tbody = document.getElementById('trendEditorTableBody');
+    const entity = appState.trends[currentTrendEntityIndex];
+    let html = '';
+    
+    for (let m = 0; m < 12; m++) {
+        const actVal = (entity.actual[m] !== null && entity.actual[m] !== undefined) ? entity.actual[m] : '';
+        const plnVal = (entity.plan[m] !== null && entity.plan[m] !== undefined) ? entity.plan[m] : '';
+        const prvVal = (entity.prev[m] !== null && entity.prev[m] !== undefined) ? entity.prev[m] : '';
+
+        // step을 0.01로 수정
+        html += `
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-4 py-2 font-bold text-gray-800 border border-gray-300">${m + 1}월</td>
+                <td class="px-2 py-2 border border-gray-300 bg-indigo-50/20 text-[#6200EA]">
+                    <input type="number" step="0.01" id="t-act-${m}" value="${actVal}" placeholder="-" class="w-20 p-1.5 border border-gray-300 rounded text-center font-bold text-[#6200EA] focus:ring-2 focus:ring-[#6200EA] outline-none">
+                </td>
+                <td class="px-2 py-2 border border-gray-300 bg-gray-50/20 text-gray-700">
+                    <input type="number" step="0.01" id="t-pln-${m}" value="${plnVal}" placeholder="-" class="w-20 p-1.5 border border-gray-300 rounded text-center text-gray-700 focus:ring-2 focus:ring-gray-400 outline-none">
+                </td>
+                <td class="px-2 py-2 border border-gray-300 bg-gray-50/20 text-gray-500">
+                    <input type="number" step="0.01" id="t-prv-${m}" value="${prvVal}" placeholder="-" class="w-20 p-1.5 border border-gray-300 rounded text-center text-gray-500 focus:ring-2 focus:ring-gray-400 outline-none">
+                </td>
+            </tr>
+        `;
+    }
+    tbody.innerHTML = html;
+}
+
+function saveCurrentTrendTableState() {
+    const view = document.getElementById('editorViewTrends');
+    if (view.classList.contains('hidden')) return; 
+    
+    const entity = appState.trends[currentTrendEntityIndex];
+    for (let m = 0; m < 12; m++) {
+        const aInput = document.getElementById(`t-act-${m}`);
+        const pInput = document.getElementById(`t-pln-${m}`);
+        const rInput = document.getElementById(`t-prv-${m}`);
+        if(aInput) entity.actual[m] = aInput.value === '' ? null : Number(aInput.value);
+        if(pInput) entity.plan[m] = pInput.value === '' ? null : Number(pInput.value);
+        if(rInput) entity.prev[m] = rInput.value === '' ? null : Number(rInput.value);
+    }
+}
+
+function saveDataEditor() {
+    appState.period.year = parseInt(document.getElementById('edit-year').value) || 2026;
+    appState.period.m1 = parseInt(document.getElementById('edit-m1').value) || 3;
+    appState.period.m2 = parseInt(document.getElementById('edit-m2').value) || 4;
+
+    for (let i = 0; i < appState.conn.subs.length; i++) {
+        const elExp = document.getElementById(`e-conn-mar-exp-${i}`);
+        if(elExp) {
+            appState.conn.mar.expected[i] = Number(elExp.value);
+            appState.conn.mar.plan[i] = Number(document.getElementById(`e-conn-mar-plan-${i}`).value);
+            appState.conn.mar.prev[i] = Number(document.getElementById(`e-conn-mar-prev-${i}`).value);
+            appState.conn.apr.expected[i] = Number(document.getElementById(`e-conn-apr-exp-${i}`).value);
+            appState.conn.apr.plan[i] = Number(document.getElementById(`e-conn-apr-plan-${i}`).value);
+            appState.conn.apr.prev[i] = Number(document.getElementById(`e-conn-apr-prev-${i}`).value);
+        }
+    }
+    
+    for (let i = 0; i < appState.subs.length; i++) {
+        const elExp = document.getElementById(`e-mar-exp-${i}`);
+        if(elExp) {
+            appState.mar.expected[i] = Number(elExp.value);
+            appState.mar.plan[i] = Number(document.getElementById(`e-mar-plan-${i}`).value);
+            appState.mar.prev[i] = Number(document.getElementById(`e-mar-prev-${i}`).value);
+            appState.apr.expected[i] = Number(document.getElementById(`e-apr-exp-${i}`).value);
+            appState.apr.plan[i] = Number(document.getElementById(`e-apr-plan-${i}`).value);
+            appState.apr.prev[i] = Number(document.getElementById(`e-apr-prev-${i}`).value);
+        }
+    }
+
+    saveCurrentTrendTableState();
+
+    // 12개월 추이 데이터의 3,4월 값을 요약 테이블 수정값으로 완벽 매핑 동기화
+    appState.trends[0].actual[2] = appState.conn.mar.expected[0]; appState.trends[0].actual[3] = appState.conn.apr.expected[0];
+    appState.trends[5].actual[2] = appState.conn.mar.expected[1]; appState.trends[5].actual[3] = appState.conn.apr.expected[1];
+    
+    // 법인 순서 변경 반영 (한국, 중국, 호주, 미국)
+    appState.trends[1].actual[2] = appState.mar.expected[0]; appState.trends[1].actual[3] = appState.apr.expected[0];
+    appState.trends[2].actual[2] = appState.mar.expected[1]; appState.trends[2].actual[3] = appState.apr.expected[1];
+    appState.trends[3].actual[2] = appState.mar.expected[2]; appState.trends[3].actual[3] = appState.apr.expected[2];
+    appState.trends[4].actual[2] = appState.mar.expected[3]; appState.trends[4].actual[3] = appState.apr.expected[3];
+    appState.trends[6].actual[2] = appState.mar.expected[4]; appState.trends[6].actual[3] = appState.apr.expected[4];
+    appState.trends[7].actual[2] = appState.mar.expected[5]; appState.trends[7].actual[3] = appState.apr.expected[5];
+    appState.trends[8].actual[2] = appState.mar.expected[6]; appState.trends[8].actual[3] = appState.apr.expected[6];
+    appState.trends[9].actual[2] = appState.mar.expected[7]; appState.trends[9].actual[3] = appState.apr.expected[7];
+    appState.trends[10].actual[2] = appState.mar.expected[8]; appState.trends[10].actual[3] = appState.apr.expected[8];
+
+    updatePeriodTexts();
+    updateSummaryCards();
+    renderDetailedTable(); // 상세표 리렌더링
+
+    const lblM1 = `${appState.period.m1}월 예상`;
+    const lblM2 = `${appState.period.m2}월 예상`;
+
+    if (chartGroupTrend) {
+        chartGroupTrend.data.datasets[0].label = lblM1;
+        chartGroupTrend.data.datasets[0].data = [...appState.mar.expected];
+        chartGroupTrend.data.datasets[0].targets.plan = [...appState.mar.plan];
+        chartGroupTrend.data.datasets[0].targets.prev = [...appState.mar.prev];
+        chartGroupTrend.data.datasets[1].label = lblM2;
+        chartGroupTrend.data.datasets[1].data = [...appState.apr.expected];
+        chartGroupTrend.data.datasets[1].targets.plan = [...appState.apr.plan];
+        chartGroupTrend.data.datasets[1].targets.prev = [...appState.apr.prev];
+        chartGroupTrend.update();
+    }
+
+    trendChartInstances.forEach((chart, idx) => {
+        const entity = appState.trends[idx];
+        chart.data.labels = generateTrendLabels(entity);
+        chart.data.datasets[0].data = [...entity.prev];
+        chart.data.datasets[1].data = [...entity.plan];
+        chart.data.datasets[2].data = [...entity.actual];
+        chart.update();
+    });
+
+    closeDataEditor();
+
+    const btn = document.querySelector('button[onclick="openDataEditor()"]');
+    if (btn) {
+        const ogText = btn.innerHTML;
+        btn.innerHTML = '✅ 반영 완료';
+        btn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-500');
+        setTimeout(() => { 
+            btn.innerHTML = ogText;
+            btn.classList.remove('bg-emerald-500', 'text-white', 'border-emerald-500');
+        }, 2000);
+    }
+}
+
+// ----------------------------------------------------
+// AI (Gemini API) 로직
+// ----------------------------------------------------
+const apiKey = "";
+
+async function fetchWithRetry(url, options, maxRetries = 5) {
+    const delays = [1000, 2000, 4000, 8000, 16000];
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            if (i === maxRetries - 1) throw error;
+            await new Promise(res => setTimeout(res, delays[i]));
+        }
+    }
+}
+
+async function callGeminiAPI(promptText) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    const payload = {
+        contents: [{ parts: [{ text: promptText }] }],
+        systemInstruction: { parts: [{ text: "당신은 그룹 지주회사의 최고 전략 책임자(CSO)이자 전문 경영 컨설턴트입니다. 항상 객관적 데이터를 바탕으로 한국어로 명확하고 핵심을 찌르는 경영 인사이트와 조언을 제공합니다. 응답은 순수 마크다운 포맷으로 깔끔하게 정리해 주세요." }] }
+    };
+    const result = await fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    return result.candidates?.[0]?.content?.parts?.[0]?.text || "분석 결과를 불러오지 못했습니다.";
+}
+
+async function generateExecutiveSummary() {
+    const btn = document.getElementById('aiSummaryBtn');
+    const resultDiv = document.getElementById('aiSummaryResult');
+    const contentDiv = document.getElementById('aiSummaryContent');
+    
+    btn.disabled = true;
+    btn.innerHTML = '✨ 실시간 데이터 기반 AI 분석 중...';
+    resultDiv.classList.remove('hidden');
+    contentDiv.innerHTML = '<div class="flex justify-center items-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6200EA]"></div></div>';
+    
+    const cMar = appState.conn.mar;
+    const cApr = appState.conn.apr;
+
+    const n3e = cMar.expected[0], n3p = calcRatio(n3e, cMar.plan[0]), n3y = calcYoY(n3e, cMar.prev[0]);
+    const b3e = cMar.expected[1], b3p = calcRatio(b3e, cMar.plan[1]), b3y = calcYoY(b3e, cMar.prev[1]);
+    const n4e = cApr.expected[0], n4p = calcRatio(n4e, cApr.plan[0]), n4y = calcYoY(n4e, cApr.prev[0]);
+    const b4e = cApr.expected[1], b4p = calcRatio(b4e, cApr.plan[1]), b4y = calcYoY(b4e, cApr.prev[0]);
+
+    const { year, m1, m2 } = appState.period;
+
+    const prompt = `다음은 우리 그룹의 ${year}년 ${m1}월 가마감 및 ${m2}월 예상 매출의 가장 최신 업데이트 데이터입니다.
+    [건기식 부문 (NBT+BIO)]
+    - NBT ${m1}월: ${n3e}억 (계획 ${n3p}%, 전년비 ${n3y}%)
+    - BIO ${m1}월: ${b3e}억 (계획 ${b3p}%, 전년비 ${b3y}%)
+    - NBT ${m2}월: ${n4e}억 (계획 ${n4p}%, 전년비 ${n4y}%)
+    - BIO ${m2}월: ${b4e}억 (계획 ${b4p}%, 전년비 ${b4y}%)
+    
+    이 최신 데이터를 종합하여 최고경영진을 위한 핵심 인사이트 2가지와 위기 극복 전략 2가지를 요약해주세요.`;
+    
+    try {
+        const responseText = await callGeminiAPI(prompt);
+        contentDiv.innerHTML = marked.parse(responseText); 
+    } catch (e) {
+        contentDiv.innerHTML = '<p class="text-red-500">API 호출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '✨ AI 최고경영진 종합 분석 리포트';
+    }
+}
+
+window.onload = () => {
+    updatePeriodTexts();
+    updateSummaryCards();
+    initSummaryCharts();
+    renderDetailedTable();
+    initMonthlyTrendCharts();
+};
+</script>
+</body>
+</html>
