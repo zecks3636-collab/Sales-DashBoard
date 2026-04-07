@@ -54,7 +54,7 @@ body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: 
 <h1 class="text-3xl font-extrabold accent-gradient tracking-tight">건강기능식품 가마감 대시보드 <span id="header-period-badge">2026.03</span></h1>
 </div>
 <div class="hidden md:flex items-center space-x-3 text-sm font-medium">
-<button onclick="openPasswordModal()" class="bg-white border-2 border-[#6200EA]/30 text-[#6200EA] hover:bg-[#6200EA] hover:text-white transition-colors py-2 px-4 rounded-full flex items-center shadow-sm font-bold">
+<button onclick="openDataEditor()" class="bg-white border-2 border-[#6200EA]/30 text-[#6200EA] hover:bg-[#6200EA] hover:text-white transition-colors py-2 px-4 rounded-full flex items-center shadow-sm font-bold">
 ⚙️ 데이터 통합 수정
 </button>
 </div>
@@ -65,7 +65,7 @@ body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: 
 
 <!-- 모바일 전용 데이터 수정 버튼 -->
 <div class="md:hidden flex justify-end -mt-4 mb-4">
-<button onclick="openPasswordModal()" class="bg-white border-2 border-[#6200EA]/30 text-[#6200EA] hover:bg-[#6200EA] hover:text-white transition-colors py-2 px-4 rounded-full flex items-center shadow-sm font-bold text-sm w-full justify-center">
+<button onclick="openDataEditor()" class="bg-white border-2 border-[#6200EA]/30 text-[#6200EA] hover:bg-[#6200EA] hover:text-white transition-colors py-2 px-4 rounded-full flex items-center shadow-sm font-bold text-sm w-full justify-center">
 ⚙️ 데이터 통합 수정
 </button>
 </div>
@@ -208,19 +208,6 @@ body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: 
 
 </main>
 
-<!-- Password Authentication Modal (신규) -->
-<div id="passwordModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[110] hidden flex items-center justify-center transition-opacity opacity-0 duration-300">
-    <div class="bg-white rounded-2xl w-[90%] max-w-sm p-6 shadow-2xl transform scale-95 transition-transform duration-300">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">🔒 관리자 인증</h3>
-        <p class="text-sm text-gray-600 mb-4">데이터 수정 권한이 필요합니다.<br>비밀번호를 입력해주세요.</p>
-        <input type="password" id="adminPassword" class="w-full p-3 border border-gray-300 rounded-lg mb-2 focus:ring-2 focus:ring-[#6200EA] outline-none transition-all" placeholder="비밀번호 입력" onkeypress="if(event.key === 'Enter') checkPassword()">
-        <p id="passwordError" class="text-red-500 text-xs font-bold hidden mb-4">⚠️ 비밀번호가 일치하지 않습니다.</p>
-        <div class="flex justify-end gap-3 mt-4">
-            <button onclick="closePasswordModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium transition-colors">취소</button>
-            <button onclick="checkPassword()" class="px-4 py-2 text-white bg-[#6200EA] rounded-lg hover:bg-[#5000C0] font-bold shadow-md transition-colors">확인</button>
-        </div>
-    </div>
-</div>
 
 <!-- Data Editor Modal -->
 <div id="dataEditorModal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center transition-opacity opacity-0 duration-300">
@@ -385,57 +372,7 @@ body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: 
 </div>
 
 <script>
-// --- 인증 로직 ---
-const ADMIN_PASSWORD = "admin"; // 기본 관리자 비밀번호 설정
 
-function openPasswordModal() {
-    const modal = document.getElementById('passwordModal');
-    const input = document.getElementById('adminPassword');
-    const err = document.getElementById('passwordError');
-    
-    input.value = '';
-    err.classList.add('hidden');
-    input.classList.remove('shake-anim', 'border-red-500');
-    
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        modal.children[0].classList.remove('scale-95');
-        modal.children[0].classList.add('scale-100');
-        input.focus();
-    }, 10);
-}
-
-function closePasswordModal() {
-    const modal = document.getElementById('passwordModal');
-    modal.classList.add('opacity-0');
-    modal.children[0].classList.remove('scale-100');
-    modal.children[0].classList.add('scale-95');
-    setTimeout(() => { modal.classList.add('hidden'); }, 300);
-}
-
-function checkPassword() {
-    const input = document.getElementById('adminPassword');
-    const err = document.getElementById('passwordError');
-    
-    if (input.value === ADMIN_PASSWORD) {
-        closePasswordModal();
-        setTimeout(() => {
-            openDataEditor(); 
-        }, 300);
-    } else {
-        err.classList.remove('hidden');
-        input.classList.add('border-red-500');
-        
-        // 흔들림 애니메이션 리셋 후 재적용
-        input.classList.remove('shake-anim');
-        void input.offsetWidth; 
-        input.classList.add('shake-anim');
-        
-        input.value = '';
-        input.focus();
-    }
-}
 
 // 전역 애플리케이션 상태: PDF 문서의 정확한 소수점 2자리 값 적용 완료
 const appState = {
