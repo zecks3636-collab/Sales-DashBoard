@@ -7,6 +7,11 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+</script>
 <style>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: #1E293B; }
@@ -230,7 +235,7 @@ body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: 
             <button onclick="switchEditorTab('summary')" id="tabBtnSummary" class="tab-btn active px-4 py-2.5 text-gray-600 font-semibold mr-2 focus:outline-none whitespace-nowrap">상단 요약 및 차트 (2개월)</button>
             <button onclick="switchEditorTab('trends')" id="tabBtnTrends" class="tab-btn px-4 py-2.5 text-gray-600 font-semibold mr-2 focus:outline-none whitespace-nowrap">월별 추이 (1~12월)</button>
             <button onclick="switchEditorTab('table')" id="tabBtnTable" class="tab-btn px-4 py-2.5 text-gray-600 font-semibold mr-2 focus:outline-none whitespace-nowrap">상세 실적표 전체 수치</button>
-            <button onclick="switchEditorTab('upload')" id="tabBtnUpload" class="tab-btn px-4 py-2.5 text-[#00E5FF] font-black focus:outline-none whitespace-nowrap flex items-center gap-1">🚀 구글 시트 연동</button>
+            <button onclick="switchEditorTab('upload')" id="tabBtnUpload" class="tab-btn px-4 py-2.5 text-[#00E5FF] font-black focus:outline-none whitespace-nowrap flex items-center gap-1">🚀 파일 업로드 (엑셀/PDF)</button>
         </div>
 
         <!-- 1. 요약(2개월) 에디터 뷰 -->
@@ -336,24 +341,36 @@ body { font-family: 'Pretendard', sans-serif; background-color: #FFFFFF; color: 
             </div>
         </div>
 
-        <!-- 4. 구글 시트 연동 에디터 뷰 -->
+        <!-- 4. 업로드 에디터 뷰 -->
         <div id="editorViewUpload" class="hidden flex-1 flex flex-col overflow-hidden">
             <div class="p-6 overflow-y-auto flex-1 custom-scrollbar bg-slate-50/50">
                 <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm max-w-4xl mx-auto">
-                    <h4 class="text-lg font-bold text-gray-800 mb-2">📊 구글 스프레드시트 일괄 연동</h4>
-                    <p class="text-sm text-gray-600 mb-6">대시보드의 전체 데이터를 엑셀/구글 시트 형식으로 복사하여 외부에서 한 번에 편집한 후, 다시 붙여넣어 업데이트할 수 있습니다.</p>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">📊 외부 데이터 파일 업로드 (엑셀/PDF/구글시트)</h4>
+                    <p class="text-sm text-gray-600 mb-6">엑셀 파일(.xlsx, .csv)이나 PDF 파일, 혹은 데이터를 직접 복사하여 붙여넣고 전체 데이터를 한 번에 업데이트 하세요.</p>
                     
                     <div class="flex flex-col gap-6">
-                        <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-                            <p class="text-sm font-bold text-indigo-900 mb-2">1단계: 대시보드 데이터 양식 복사하기</p>
-                            <button id="copyBtn" onclick="copyTemplateToClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm font-bold transition-colors">📋 스프레드시트용 양식 복사</button>
-                            <p class="text-xs text-indigo-700 mt-2">* 버튼을 눌러 양식을 복사한 뒤 구글 시트의 <span class="font-bold">A1 셀</span>에 붙여넣기(Ctrl+V) 하세요.<br>* 구글 시트에서 수치 데이터를 자유롭게 수정하세요.</p>
+                        <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-bold text-indigo-900 mb-1">1단계: 대시보드 양식 복사 (수동 편집시)</p>
+                                <p class="text-xs text-indigo-700">* 버튼을 눌러 양식을 복사한 뒤 구글 시트의 A1 셀에 붙여넣기(Ctrl+V) 하세요.</p>
+                            </div>
+                            <button id="copyBtn" onclick="copyTemplateToClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow text-sm font-bold transition-colors">📋 양식 복사</button>
+                        </div>
+                        
+                        <div class="p-5 bg-amber-50 rounded-lg border border-amber-100 text-center relative hover:bg-amber-100/50 transition-colors border-dashed border-2">
+                            <p class="text-sm font-bold text-amber-900 mb-2">2단계: 엑셀 / PDF 파일 단일 업로드</p>
+                            <input type="file" id="fileUploader" accept=".xlsx, .xls, .csv, .pdf" onchange="handleFileUpload(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <div class="pointer-events-none py-4">
+                                <span class="text-3xl mb-2 block" id="uploadIcon">📁</span>
+                                <span class="bg-amber-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow inline-block" id="uploadBtnText">찾아보기 (클릭 또는 드래그)</span>
+                                <p class="text-xs text-amber-700 mt-3 font-medium">지원 포맷: .xlsx, .csv, .pdf</p>
+                            </div>
                         </div>
 
                         <div class="p-4 bg-cyan-50 rounded-lg border border-cyan-100">
-                            <p class="text-sm font-bold text-cyan-900 mb-2">2단계: 구글 시트에서 수정한 데이터 적용하기</p>
-                            <textarea id="tsvInput" class="w-full h-40 p-3 border border-gray-300 rounded text-xs font-mono mb-3 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="여기에 구글 시트에서 수정 완료한 데이터 영역 전체를 복사하여 붙여넣기(Ctrl+V) 하세요..."></textarea>
-                            <button id="applyBtn" onclick="parseAndApplyTSV()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 rounded shadow text-sm font-bold transition-colors w-full">🚀 데이터 파싱 및 대시보드 업데이트</button>
+                            <p class="text-sm font-bold text-cyan-900 mb-2">3단계: 파싱 데이터 검토 및 일괄 적용</p>
+                            <textarea id="tsvInput" class="w-full h-40 p-3 border border-gray-300 rounded text-xs font-mono mb-3 focus:ring-2 focus:ring-cyan-500 outline-none" placeholder="파일을 업로드하면 여기에 데이터 텍스트가 자동 추출되어 표시됩니다. 양식에 맞지 않는 경우 수동으로 수정하거나 구글 시트 데이터를 직접 붙여넣으세요..."></textarea>
+                            <button id="applyBtn" onclick="parseAndApplyTSV()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2.5 rounded shadow text-sm font-bold transition-colors w-full">🚀 텍스트 데이터 파싱 및 대시보드 업데이트</button>
                         </div>
                     </div>
                 </div>
@@ -1275,6 +1292,59 @@ function copyTemplateToClipboard() {
         btn.innerHTML = ogText;
         btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
     }, 2500);
+}
+
+// --- 파일 업로드 처리 로직 (엑셀/PDF) ---
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const btnText = document.getElementById('uploadBtnText');
+    const icon = document.getElementById('uploadIcon');
+    const tsvInput = document.getElementById('tsvInput');
+    
+    icon.innerText = '⏳';
+    btnText.innerText = '파일 분석 중...';
+    
+    try {
+        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv')) {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            // 엑셀을 TSV 형태로 변환
+            const tsvData = XLSX.utils.sheet_to_csv(worksheet, { FS: '\t' });
+            
+            tsvInput.value = tsvData;
+            icon.innerText = '✅';
+            btnText.innerText = '엑셀 업로드 완료! (아래 양식 확인)';
+        } else if (file.name.endsWith('.pdf')) {
+            const data = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data }).promise;
+            
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += `[Page ${i}]\n` + pageText + '\n\n';
+            }
+            
+            tsvInput.value = "=== PDF 텍스트 추출 완료 ===\n" + fullText + "\n\n* 주의: PDF는 단순 텍스트만 추출되므로 데이터 양식에 맞게 수동으로 매핑하거나 편집해야 합니다.";
+            icon.innerText = '📄';
+            btnText.innerText = 'PDF 텍스트 추출 완료!';
+        } else {
+            alert('지원하지 않는 파일 형식입니다.');
+            icon.innerText = '📁';
+            btnText.innerText = '찾아보기 (클릭 또는 드래그)';
+        }
+    } catch (e) {
+        console.error('File reading error:', e);
+        alert('파일을 읽는 중 오류가 발생했습니다.');
+        icon.innerText = '⚠️';
+        btnText.innerText = '오류 발생';
+    }
 }
 
 // TSV 데이터 파싱 및 대시보드 반영
